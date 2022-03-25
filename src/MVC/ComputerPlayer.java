@@ -19,7 +19,9 @@ public class ComputerPlayer {
 
 
     public void movePiece() {
-        c.movePiece(strategy.chooseMove(c.getMoves(color)));
+        c.movePiece(strategy.chooseMove(c.getMoves(color),
+                c.getPieces(color),
+                c.getOppositePieces(color)));
 
     }
 

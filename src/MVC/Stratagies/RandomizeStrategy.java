@@ -1,6 +1,7 @@
 package MVC.Stratagies;
 
 import MVC.model.Move;
+import MVC.model.Piece;
 import MVC.model.PointClasses.Point;
 import MVC.model.PossibleMoves;
 
@@ -15,7 +16,6 @@ import java.util.Random;
 public class RandomizeStrategy implements Strategy{
 
 
-    @Override
     public Move chooseMove(PossibleMoves possibleMoves) {
         Random generator = new Random();
         int value = generator.nextInt(possibleMoves.getMoves().size());
@@ -27,5 +27,10 @@ public class RandomizeStrategy implements Strategy{
             value--;
         }
         return null;
+    }
+
+    @Override
+    public Move chooseMove(PossibleMoves possibleMoves, Piece[][] myPieces, Piece[][] otherPieces) {
+        return chooseMove(possibleMoves);
     }
 }

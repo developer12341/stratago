@@ -109,4 +109,11 @@ public class Model {
         return board.getMoves(color);
     }
 
+    public Piece[][] getOppositePieces(String color) {
+        return board.getPieces(color);
+    }
+
+    public Piece[][] getPieces(String color) {
+        return board.getPieces(color);
+    }
 }

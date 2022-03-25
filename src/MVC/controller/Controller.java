@@ -2,6 +2,7 @@ package MVC.controller;
 
 import MVC.model.Model;
 import MVC.model.Move;
+import MVC.model.Piece;
 import MVC.model.PossibleMoves;
 import javafx.event.ActionEvent;
 
@@ -48,5 +49,13 @@ public class Controller {
 
     public void movePiece(Move move) {
         model.movePiece(move.getP1(), move.getP2());
+    }
+
+    public Piece[][] getOppositePieces(String color) {
+        return model.getOppositePieces(color);
+    }
+
+    public Piece[][] getPieces(String color) {
+        return model.getPieces(color);
     }
 }
