@@ -16,7 +16,7 @@ import javafx.stage.Stage;
 import java.util.ArrayList;
 
 public class window {
-    private Button[][] board;
+    private ViewPiece[][] board;
     private boolean setup;
     private Button startGame;
     private Button selected;
@@ -24,7 +24,7 @@ public class window {
     private BorderPane root;
 
     public window(Stage stage) {
-        board = new Button[10][10];
+        board = new ViewPiece[10][10];
         selected = null;
         setup = true;
         initGUIObjects();
@@ -49,7 +49,7 @@ public class window {
         GridPane grid = new GridPane();
         for (int row = 0; row < board.length; row++) {
             for (int col = 0; col < board[row].length; col++) {
-                board[row][col] = new Button();
+                board[row][col] = new ViewPiece(row, col);
                 board[row][col].setMinWidth(50);
                 board[row][col].setMinHeight(30);
                 grid.add(board[row][col], col, row);
@@ -131,21 +131,16 @@ public class window {
     }
 
     public Point getLocation(ActionEvent actionEvent) {
-        Button findVal = (Button) actionEvent.getSource();
+        if(!(actionEvent.getSource() instanceof ViewPiece findVal))
+            throw new IllegalArgumentException("the button selected was not in the board");
         return getLocation(findVal);
     }
 
 
-    public Point getLocation(Button findVal) {
-        //TODO: make sure this function is not a problem, if needed throw a hash map at the problem ;)
-        for (int row = 0; row < board.length; row++) {
-            for (int col = 0; col < board[row].length; col++) {
-                if (findVal == board[row][col]) {
-                    return Point.create(row, col);
-                }
-            }
-        }
-        return null;
+    public Point getLocation(Button button) {
+        if(!(button instanceof ViewPiece))
+            throw new IllegalArgumentException("the button selected was not in the board");
+        return ((ViewPiece) button).getPoint();
     }
 
 
@@ -172,7 +167,7 @@ public class window {
 
     public void clearSelected(Point p, ArrayList<Point> moves) {
         selected = null;
-        unhighlightMoves(p,moves);
+        unhighlightMoves(p, moves);
     }
 
     private void unhighlightMoves(Point p, ArrayList<Point> moves) {
