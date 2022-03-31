@@ -1,13 +1,9 @@
 package MVC.model;
 
-import MVC.model.PointClasses.Point;
+import java.util.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
-public class PossibleMoves {
-    public final Map<Point, ArrayList<Point>> possibleMoves;
+public class PossibleMoves implements Iterable<Move>{
+    public final Map<Point, List<Point>> possibleMoves;
 
     public PossibleMoves() {
         possibleMoves = new HashMap<>();
@@ -22,11 +18,11 @@ public class PossibleMoves {
             possibleMoves.get(p1).add(p2);
     }
 
-    public Map<Point, ArrayList<Point>> getMoves() {
+    public Map<Point, List<Point>> getMoves() {
         return possibleMoves;
     }
 
-    public ArrayList<Point> getMoves(Point p1){
+    public List<Point> getMoves(Point p1){
         return possibleMoves.get(p1);
     }
 
@@ -51,5 +47,18 @@ public class PossibleMoves {
         return "PossibleMoves{" +
                 "possibleMoves=" + possibleMoves +
                 '}';
+    }
+
+    public boolean isEmpty() {
+        return possibleMoves.isEmpty();
+    }
+
+    @Override
+    public Iterator<Move> iterator() {
+        return new PossibleMoveIterator(possibleMoves);
+    }
+
+    public int size() {
+        return possibleMoves.values().stream().mapToInt(List::size).sum();
     }
 }

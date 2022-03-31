@@ -1,11 +1,13 @@
-package MVC.model.PointClasses;
+package MVC.model.caches;
+
+import MVC.model.Point;
 
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 
 public class PointCache {
-    public final Map<Integer, Map<Integer, Point>> cache;
+    private final Map<Integer, Map<Integer, Point>> cache;
 
     public PointCache() {
         cache = new HashMap<>();
