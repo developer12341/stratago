@@ -2,6 +2,8 @@ package MVC.model;
 
 import MVC.model.caches.MoveCache;
 
+import java.util.Objects;
+
 public class Move {
     private static final MoveCache cache = new MoveCache();
 
@@ -37,10 +39,23 @@ public class Move {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Move move)) return false;
+
+        return Objects.equals(getP1(), move.getP1()) && Objects.equals(getP2(), move.getP2());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getP1(), getP2());
+    }
+
+    @Override
     public String toString() {
         return "Move{" +
-                "p1=" + p1 +
-                ", p2=" + p2 +
+                p1 +
+                "-> " + p2 +
                 '}';
     }
 }

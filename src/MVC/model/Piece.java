@@ -21,7 +21,7 @@ public enum Piece {
     PLACEHOLDER(13);
 
     private static final String PiecesFolder = "src/media/images/pieces/";
-    final int PieceNumber;
+    public final int PieceNumber;
     public final Image redPieceImage;
     public final Image bluePieceImage;
     Piece(int pieceNumber) {
@@ -40,7 +40,7 @@ public enum Piece {
 
     public static Piece fromInteger(int value) {
         return switch (value) {
-            case (1) -> SPY;
+            case (1), ('S') -> SPY;
             case (2) -> SCOUT;
             case (3) -> MINER;
             case (4) -> SERGEANT;
@@ -50,8 +50,8 @@ public enum Piece {
             case (8) -> COLONEL;
             case (9) -> GENERAL;
             case (10) -> MARSHAL;
-            case (11) -> BOMB;
-            case (12) -> FLAG;
+            case (11), ('B') -> BOMB;
+            case (12), ('F') -> FLAG;
             case (13) -> PLACEHOLDER;
             default -> throw new IllegalStateException("Unexpected value: " + value);
         };

@@ -1,20 +1,17 @@
 package MVC.view;
 
-import MVC.model.PointClasses.Point;
+import MVC.model.Point;
 import javafx.scene.control.Button;
 
 public class ViewPiece extends Button {
-    private Point point;
+    private int row, col;
 
     public ViewPiece(int row, int col) {
-        point = Point.create(row, col);
-    }
-
-    public ViewPiece(Point point) {
-        this.point = point;
+        this.row = row;
+        this.col = col;
     }
 
     public Point getPoint() {
-        return point;
+        return Point.create(row, col);
     }
 }

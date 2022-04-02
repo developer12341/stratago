@@ -2,6 +2,8 @@ package MVC.view;
 
 import MVC.ComputerPlayer;
 import MVC.controller.Controller;
+import MVC.model.Attack;
+import MVC.model.Move;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 
@@ -18,7 +20,7 @@ public class HumanPlayer implements EventHandler<ActionEvent>{
         this.controller = controller;
         this.playerColor = playerColor;
         OtherPlayer = otherPlayer;
-        OtherPlayer.setPieces();
+
     }
 
     @Override
@@ -41,8 +43,8 @@ public class HumanPlayer implements EventHandler<ActionEvent>{
                 }
                 if(!controller.isPossibleMove(actionEvent))
                     return;
-                movePiece(actionEvent);
-                OtherPlayer.movePiece();
+                Attack attack = movePiece(actionEvent);
+                OtherPlayer.movePiece(attack.getMove(), attack.getAttackingPiece());
             }
             else {
                 if(!controller.doesHaveMoves(actionEvent, playerColor))
@@ -52,8 +54,8 @@ public class HumanPlayer implements EventHandler<ActionEvent>{
         }
     }
 
-    private void movePiece(ActionEvent actionEvent) {
-        controller.moveSelectedTo(actionEvent);
+    private Attack movePiece(ActionEvent actionEvent) {
+        return controller.moveSelectedTo(actionEvent);
 
     }
 
@@ -61,6 +63,7 @@ public class HumanPlayer implements EventHandler<ActionEvent>{
     private void onGameStart() {
         controller.clearSelected();
         controller.startGame();
+//        controller.startGame();
 
     }
 

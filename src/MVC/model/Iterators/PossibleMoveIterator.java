@@ -1,4 +1,7 @@
-package MVC.model;
+package MVC.model.Iterators;
+
+import MVC.model.Move;
+import MVC.model.Point;
 
 import java.util.Iterator;
 import java.util.List;

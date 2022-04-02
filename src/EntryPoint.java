@@ -1,5 +1,5 @@
 import MVC.controller.Controller;
-import MVC.model.Model;
+import MVC.model.Board;
 import MVC.view.window;
 import javafx.application.Application;
 import javafx.stage.Stage;
@@ -11,12 +11,11 @@ public class EntryPoint extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        Controller c = new Controller();
         window view = new window(stage);
-        Model m = new Model();
+        Board model = new Board();
+        Controller c = new Controller(model);
 
-        m.registerView(view);
-        c.setModel(m);
+        c.registerView(view);
         view.setEventHandlers(c);
 
     }

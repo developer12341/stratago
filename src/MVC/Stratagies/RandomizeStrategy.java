@@ -1,11 +1,9 @@
 package MVC.Stratagies;
 
-import MVC.model.Move;
-import MVC.model.Piece;
-import MVC.model.PointClasses.Point;
-import MVC.model.PossibleMoves;
+import MVC.model.*;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -14,23 +12,35 @@ import java.util.Random;
  * of the game.
  */
 public class RandomizeStrategy implements Strategy{
+    private Board board;
+    private String color;
 
+    public RandomizeStrategy(Board board, String color) {
+        this.board = board;
+        this.color = color;
+    }
 
-    public Move chooseMove(PossibleMoves possibleMoves) {
+    private Move chooseMove(PossibleMoves possibleMoves) {
         Random generator = new Random();
-        int value = generator.nextInt(possibleMoves.getMoves().size());
-        for (Map.Entry<Point, ArrayList<Point>> move : possibleMoves.getMoves().entrySet()) {
-            if(value == 0) {
-                ArrayList<Point> points = move.getValue();
-                return new Move(move.getKey(), points.get(generator.nextInt(points.size())));
-            }
+        int value = generator.nextInt(possibleMoves.size());
+
+        for(Move move: possibleMoves){
+            if(value == 0)
+                return move;
             value--;
         }
+
         return null;
     }
 
+
     @Override
-    public Move chooseMove(PossibleMoves possibleMoves, Piece[][] myPieces, Piece[][] otherPieces) {
-        return chooseMove(possibleMoves);
+    public Move chooseMove() {
+        return chooseMove(board.getMoves(color));
+    }
+
+    @Override
+    public void HumanMove(Move humanPlayerMove, Piece attackingPiece) {
+
     }
 }

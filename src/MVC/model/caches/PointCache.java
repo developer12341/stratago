@@ -7,32 +7,38 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PointCache {
-    private final Map<Integer, Map<Integer, Point>> cache;
+    private final Point[][] cache;
+    private int maxRow;
+    private int maxCol;
 
-    public PointCache() {
-        cache = new HashMap<>();
+    public PointCache(int maxRow, int maxCol) {
+        this.maxRow = maxRow;
+        this.maxCol = maxCol;
+        cache = new Point[maxRow][maxCol];
     }
 
     public boolean contains(int row, int col) {
-        return cache.containsKey(row) && cache.get(row).containsKey(col);
+        if(!isValidPosition(row,col))
+            return false;
+        return cache[row][col] != null;
+    }
+
+    private boolean isValidPosition(int row, int col) {
+        return maxRow > row && row >= 0 && maxCol > col && col >= 0;
     }
 
     public void put(Point point) {
+        if(!isValidPosition(point.getRow(),point.getCol()))
+            throw new IndexOutOfBoundsException("the point " + point + " cannot be added to the cache");
         if (contains(point.getRow(), point.getCol()))
             throw new IllegalArgumentException("the point " + point + "exist already in the cache");
-        if (!cache.containsKey(point.getRow()))
-            cache.put(point.getRow(), new HashMap<>());
-        if (!cache.get(point.getRow()).containsKey(point.getCol()))
-            cache.get(point.getRow()).put(point.getCol(), point);
+        cache[point.getRow()][point.getCol()] = point;
     }
 
     public Point get(int row, int col) {
         if (!contains(row, col))
-            throw new IllegalArgumentException(
-                    MessageFormat.format("the point {0}, {1} doesn't exist in the cache",
-                            row,
-                            col));
-        return cache.get(row).get(col);
+            throw new IllegalArgumentException("the point (%d, %d) doesn't exist in the cache".formatted(row, col));
+        return cache[row][col];
 
     }
 }

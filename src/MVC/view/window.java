@@ -3,7 +3,7 @@ package MVC.view;
 import MVC.ComputerPlayer;
 import MVC.controller.Controller;
 import MVC.model.Piece;
-import MVC.model.PointClasses.Point;
+import MVC.model.Point;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
@@ -13,7 +13,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class window {
     private ViewPiece[][] board;
@@ -34,6 +34,7 @@ public class window {
 
     public void setEventHandlers(Controller c) {
         ComputerPlayer otherPlayer = new ComputerPlayer(this, c, "blue");
+        otherPlayer.setPieces();
         EventHandler<ActionEvent> onButtonClick = new HumanPlayer(this, c, "red", otherPlayer);
         startGame.setOnAction(onButtonClick);
         for (Button[] row : board) {
@@ -63,19 +64,7 @@ public class window {
         scene = new Scene(root, 500, 500);
     }
 
-    public void setImages(Piece[][] visiblePieces, Piece[][] BackPieces, String VisibleColor, String oppositeColor) {
-        for (int row = 0; row < visiblePieces.length; row++) {
-            for (int col = 0; col < visiblePieces[row].length; col++) {
-                if (visiblePieces[row][col] != null) {
-                    renderImage(visiblePieces[row][col], VisibleColor, row, col);
-                } else if (BackPieces[row][col] != null) {
-                    renderImage(BackPieces[row][col], oppositeColor, row, col);
-                }
-            }
-        }
-    }
-
-    private void renderImage(Piece piece, String VisibleColor, int row, int col) {
+    public void renderImage(Piece piece, String VisibleColor, int row, int col) {
 
         ImageView imageView = new ImageView();
         imageView.setFitWidth(40);
@@ -109,7 +98,7 @@ public class window {
         return selected;
     }
 
-    public void setSelected(Point p, ArrayList<Point> points) {
+    public void setSelected(Point p, List<Point> points) {
 
         selected = board[p.getRow()][p.getCol()];
         if (points == null)
@@ -117,7 +106,7 @@ public class window {
         highlightMoves(p, points);
     }
 
-    private void highlightMoves(Point p, ArrayList<Point> points) {
+    private void highlightMoves(Point p, List<Point> points) {
         board[p.getRow()][p.getCol()].setStyle("-fx-background-color: #CCFF99;");
         if (points == null)
             return;
@@ -131,18 +120,17 @@ public class window {
     }
 
     public Point getLocation(ActionEvent actionEvent) {
-        if(!(actionEvent.getSource() instanceof ViewPiece findVal))
+        if (!(actionEvent.getSource() instanceof ViewPiece findVal))
             throw new IllegalArgumentException("the button selected was not in the board");
         return getLocation(findVal);
     }
 
 
     public Point getLocation(Button button) {
-        if(!(button instanceof ViewPiece))
+        if (!(button instanceof ViewPiece))
             throw new IllegalArgumentException("the button selected was not in the board");
         return ((ViewPiece) button).getPoint();
     }
-
 
     public void swapImages(Point pieceLocation, Point SelectedLocation) {
         ImageView temp = (ImageView) board[pieceLocation.getRow()][pieceLocation.getCol()].getGraphic();
@@ -165,12 +153,12 @@ public class window {
         clearImage(p1);
     }
 
-    public void clearSelected(Point p, ArrayList<Point> moves) {
+    public void clearSelected(Point p, List<Point> moves) {
         selected = null;
         unhighlightMoves(p, moves);
     }
 
-    private void unhighlightMoves(Point p, ArrayList<Point> moves) {
+    private void unhighlightMoves(Point p, List<Point> moves) {
 
         board[p.getRow()][p.getCol()].setStyle(null);
         if (moves == null)

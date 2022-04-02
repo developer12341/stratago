@@ -12,7 +12,7 @@ import static java.lang.Math.abs;
  * be created
  */
 public class Point {
-    private static final PointCache cache = new PointCache();
+    private static final PointCache cache = new PointCache(10, 10);
     private int row, col;
 
 
@@ -54,10 +54,7 @@ public class Point {
 
     @Override
     public String toString() {
-        return "Point{" +
-                "row=" + row +
-                ", col=" + col +
-                '}';
+        return "(%d, %d)".formatted(row, col);
     }
 
     @Override

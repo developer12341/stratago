@@ -1,8 +1,11 @@
 package MVC;
 
-import MVC.Stratagies.RandomizeStrategy;
+import MVC.Stratagies.BoardComputerView.SpeculationBoard;
+import MVC.Stratagies.AlphaBeta;
 import MVC.Stratagies.Strategy;
 import MVC.controller.Controller;
+import MVC.model.Move;
+import MVC.model.Piece;
 import MVC.view.window;
 
 public class ComputerPlayer {
@@ -11,17 +14,18 @@ public class ComputerPlayer {
     private Controller c;
     private Strategy strategy;
     public ComputerPlayer(window window, Controller c, String color) {
-        strategy = new RandomizeStrategy();
+//        strategy = new RandomizeStrategy();
         this.window = window;
         this.c = c;
         this.color = color;
+        strategy = new AlphaBeta(new SpeculationBoard(c.getBoard(), color),4,color);
     }
 
 
-    public void movePiece() {
-        c.movePiece(strategy.chooseMove(c.getMoves(color),
-                c.getPieces(color),
-                c.getOppositePieces(color)));
+    public void movePiece(Move humanPlayerMove, Piece attackingPiece) {
+        strategy.HumanMove(humanPlayerMove, attackingPiece);
+        Move m = strategy.chooseMove();
+        c.movePiece(m.getP1(),m.getP2());
 
     }
 
