@@ -22,6 +22,8 @@ public class Controller {
         Piece[][] oppositePieces = model.getPieces("blue");
         for (int row = 0; row < visiblePieces.length; row++) {
             for (int col = 0; col < visiblePieces[row].length; col++) {
+                if (!model.isValid(row, col))
+                    continue;
                 if (visiblePieces[row][col] != null) {
                     view.renderImage(visiblePieces[row][col], "red", row, col);
                 } else if (oppositePieces[row][col] != null) {
@@ -130,5 +132,13 @@ public class Controller {
 
     public Board getBoard() {
         return model;
+    }
+
+    public boolean isGameOver() {
+        return model.isGameOver();
+    }
+
+    public void gameOver(String playerColor) {
+        view.gameOver(model.getWinner(), playerColor);
     }
 }

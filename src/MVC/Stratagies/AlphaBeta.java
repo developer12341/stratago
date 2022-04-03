@@ -17,7 +17,6 @@ public class AlphaBeta implements Strategy {
     public AlphaBeta(SpeculationBoard board, int maxDepth, String computerColor) {
         this.speculationBoard = board;
         this.maxDepth = maxDepth;
-
         this.computerColor = computerColor;
     }
 

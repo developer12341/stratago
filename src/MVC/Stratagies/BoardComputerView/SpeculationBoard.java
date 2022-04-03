@@ -98,23 +98,31 @@ public class SpeculationBoard {
     private void updateProbability(Point p1, Point p2) {
         //todo:need to update the piece's probabilities to reflect his movement.
 
+
     }
 
     public Board getBoard() {
         Board newBoard = board.clone(color);
-        int invisiblePieceSum = Arrays.stream(invisiblePieceCount).sum();
+        int[] invisiblePieceCountCopy = invisiblePieceCount.clone();
+        int invisiblePieceSum = Arrays.stream(invisiblePieceCountCopy).sum();
+
         for (int row = 0; row < otherPieces.length; row++) {
             for (int col = 0; col < otherPieces[row].length; col++) {
-                if (otherPieces[row][col] != null)
+                if (otherPieces[row][col] != null) {
                     newBoard.setPiece(row,
                             col,
-                            otherPieces[row][col].getExpectedPiece(invisiblePieceCount, invisiblePieceSum),
+                            otherPieces[row][col].getExpectedPiece(invisiblePieceCountCopy, invisiblePieceSum),
                             newBoard.getOppositeColor(color));
+                    invisiblePieceCountCopy[board.getPiece(Point.create(row,col)).PieceNumber - 1]--;
+                    invisiblePieceSum--;
+                }
+
             }
         }
         newBoard.initPossibleMoves();
         newBoard.setGameOverFlag("red", true);
         newBoard.setGameOverFlag("blue", true);
+        System.out.println(board);
 
         return newBoard;
     }

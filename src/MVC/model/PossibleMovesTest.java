@@ -64,7 +64,10 @@ class PossibleMovesTest {
     @Test
     void iterator() {
         p.addMove(Point.create(0,0), Point.create(0,1));
+        int i = 1;
         for(Move move : p){
+            i++;
+            p.addMove(Point.create(0,0), Point.create(0,i));
             assertEquals(Move.create(0,0,0,1),move);
         }
 

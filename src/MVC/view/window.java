@@ -2,6 +2,7 @@ package MVC.view;
 
 import MVC.ComputerPlayer;
 import MVC.controller.Controller;
+import MVC.model.Board;
 import MVC.model.Piece;
 import MVC.model.Point;
 import javafx.event.ActionEvent;
@@ -39,7 +40,9 @@ public class window {
         startGame.setOnAction(onButtonClick);
         for (Button[] row : board) {
             for (Button b : row) {
-                b.setOnAction(onButtonClick);
+                if(b != null){
+                    b.setOnAction(onButtonClick);
+                }
             }
         }
     }
@@ -50,10 +53,13 @@ public class window {
         GridPane grid = new GridPane();
         for (int row = 0; row < board.length; row++) {
             for (int col = 0; col < board[row].length; col++) {
-                board[row][col] = new ViewPiece(row, col);
-                board[row][col].setMinWidth(50);
-                board[row][col].setMinHeight(30);
-                grid.add(board[row][col], col, row);
+                if(Board.mapMask.getValue(row, col)){
+                    board[row][col] = new ViewPiece(row, col);
+                    board[row][col].setMinWidth(50);
+                    board[row][col].setMinHeight(40);
+                    grid.add(board[row][col], col, row);
+
+                }
             }
         }
         root.setCenter(grid);
@@ -170,5 +176,19 @@ public class window {
 
     public void clearSelected() {
         selected = null;
+    }
+
+    public void gameOver(String winner, String playerColor) {
+        if(winner.equals(playerColor)){
+            System.out.println(playerColor + " you won!");
+        }else{
+            System.out.println(playerColor + " you lost:(");
+        }
+        for (ViewPiece[] row: board){
+            for (ViewPiece button: row){
+                if(button != null)
+                    button.setDisable(true);
+            }
+        }
     }
 }

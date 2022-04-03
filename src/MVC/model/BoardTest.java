@@ -130,9 +130,9 @@ class BoardTest {
 
     @Test
     void isGameOver() {
+        System.out.println(Arrays.deepToString(b.getPieces("red")));
         assertFalse(b.isGameOver());
 
-        System.out.println(Arrays.deepToString(b.getPieces("red")));
 
     }
 

@@ -92,6 +92,11 @@ public enum Piece {
         return null;
     }
 
+    @Override
+    public String toString() {
+        return super.toString() + "(%d)".formatted(PieceNumber);
+    }
+
     public boolean isMovable() {
         return 1 <= PieceNumber && PieceNumber <= 10;
     }

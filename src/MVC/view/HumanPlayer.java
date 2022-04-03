@@ -44,7 +44,14 @@ public class HumanPlayer implements EventHandler<ActionEvent>{
                 if(!controller.isPossibleMove(actionEvent))
                     return;
                 Attack attack = movePiece(actionEvent);
+                if(controller.isGameOver()){
+                    controller.gameOver(playerColor);
+                    return;
+                }
                 OtherPlayer.movePiece(attack.getMove(), attack.getAttackingPiece());
+                if(controller.isGameOver()){
+                    controller.gameOver(playerColor);
+                }
             }
             else {
                 if(!controller.doesHaveMoves(actionEvent, playerColor))
@@ -63,7 +70,6 @@ public class HumanPlayer implements EventHandler<ActionEvent>{
     private void onGameStart() {
         controller.clearSelected();
         controller.startGame();
-//        controller.startGame();
 
     }
 

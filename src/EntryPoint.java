@@ -11,8 +11,8 @@ public class EntryPoint extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        window view = new window(stage);
         Board model = new Board();
+        window view = new window(stage);
         Controller c = new Controller(model);
 
         c.registerView(view);
