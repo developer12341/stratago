@@ -20,27 +20,10 @@ public class RandomizeStrategy implements Strategy{
         this.color = color;
     }
 
-    private Move chooseMove(PossibleMoves possibleMoves) {
-        Random generator = new Random();
-        int value = generator.nextInt(possibleMoves.size());
-
-        for(Move move: possibleMoves){
-            if(value == 0)
-                return move;
-            value--;
-        }
-
-        return null;
-    }
-
 
     @Override
     public Move chooseMove() {
-        return chooseMove(board.getMoves(color));
+        return board.getMoves(color).chooseRandomMove();
     }
 
-    @Override
-    public void HumanMove(Move humanPlayerMove, Piece attackingPiece) {
-
-    }
 }

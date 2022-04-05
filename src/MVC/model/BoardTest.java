@@ -12,12 +12,11 @@ class BoardTest {
     Board b;
 
     public static void main(String[] args) {
-        Board b = new Board();
         int[][] board = {
-                {2, 6, 5, 9, 2, 6, 2, 10, 6, 2},
-                {7, 2, 'B', 'S', 8, 4, 2, 7, 8, 4},
-                {5, 4, 'B', 2, 7, 3, 5, 6, 5, 'B'},
-                {3, 'B', 4, 2, 3, 'B', 3, 3, 'B', 'F'}
+                {6,2,9,'B',4,4,2,2,4,4},
+                {8,10,2,8,'b',5,2,5,2,3},
+                {'b',3,1,7,6,'b',3,6,5,2},
+                {'F','b',7,3,7,6,'b',3,2,5}
         };
         Piece[][] b2 = new Piece[4][10];
         //copy from board to b2
@@ -28,10 +27,21 @@ class BoardTest {
         }
 
         //print b2
-        System.out.println("b2:" + Arrays.deepToString(b2));
+        printBoard(b2);
+    }
+    private static void printBoard(Piece[][] b){
+        System.out.print('{');
+        for (Piece[] pieces : b) {
+            System.out.print('{');
+            System.out.print(pieces[0].name());
+            for (int col = 1; col < pieces.length; col++) {
+                System.out.print(", " + pieces[col].name());
+            }
+            System.out.print("}, \n");
+        }
+        System.out.print("}");
 
     }
-
 
     @BeforeEach
     void setUp() {

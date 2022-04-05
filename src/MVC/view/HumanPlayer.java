@@ -3,18 +3,18 @@ package MVC.view;
 import MVC.ComputerPlayer;
 import MVC.controller.Controller;
 import MVC.model.Attack;
-import MVC.model.Move;
+import MVC.model.Board;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 
-public class HumanPlayer implements EventHandler<ActionEvent>{
+public class HumanPlayer implements EventHandler<ActionEvent> {
 
-    private window view;
+    private GUIManager view;
     private Controller controller;
     private String playerColor;
     private ComputerPlayer OtherPlayer;
 
-    public HumanPlayer(window view, Controller controller,
+    public HumanPlayer(GUIManager view, Controller controller,
                        String playerColor, ComputerPlayer otherPlayer) {
         this.view = view;
         this.controller = controller;
@@ -36,36 +36,37 @@ public class HumanPlayer implements EventHandler<ActionEvent>{
                     controller.setSelected(actionEvent, playerColor);
             }
         } else {
-            if(view.isSelected()){
+            if (view.isSelected()) {
                 if (view.isSelected(actionEvent)) {
                     controller.clearSelected();
                     return;
                 }
-                if(!controller.isPossibleMove(actionEvent))
+                if (!controller.isPossibleMove(actionEvent))
                     return;
-                Attack attack = movePiece(actionEvent);
-                if(controller.isGameOver()){
+                Attack attack = controller.moveSelectedTo(actionEvent);
+                if (attack.getDefendingPiece() != null)
+                    controller.renderImage(attack.getMove().getP2(), attack.getDefendingPiece(), Board.getOppositeColor(playerColor));
+                if (controller.isGameOver()) {
                     controller.gameOver(playerColor);
                     return;
                 }
-                OtherPlayer.movePiece(attack.getMove(), attack.getAttackingPiece());
-                if(controller.isGameOver()){
+
+                attack = OtherPlayer.movePiece(attack);
+                if (attack.getDefendingPiece() != null) {
+                    OtherPlayer.moveComputerPiece(attack);
+                    controller.renderImage(attack.getMove().getP2(), attack.getDefendingPiece(), Board.getOppositeColor(playerColor));
+                }
+
+                if (controller.isGameOver()) {
                     controller.gameOver(playerColor);
                 }
-            }
-            else {
-                if(!controller.doesHaveMoves(actionEvent, playerColor))
+            } else {
+                if (!controller.doesHaveMoves(actionEvent, playerColor))
                     return;
                 controller.setSelected(actionEvent, playerColor);
             }
         }
     }
-
-    private Attack movePiece(ActionEvent actionEvent) {
-        return controller.moveSelectedTo(actionEvent);
-
-    }
-
 
     private void onGameStart() {
         controller.clearSelected();

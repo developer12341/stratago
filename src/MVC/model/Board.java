@@ -1,47 +1,22 @@
 package MVC.model;
 
+import generator.BoardGenerator;
+
 import java.util.List;
 import java.util.Random;
 
-import static MVC.model.Piece.*;
+import static MVC.model.Piece.FLAG;
+import static MVC.model.Piece.SCOUT;
 
 public class Board implements Cloneable {
     public static final int size = 10;
-    // this is a read only variable
-    public static final Piece[][][] defaultBoards = {
-            {{SCOUT, COLONEL, LIEUTENANT, SCOUT, CAPTAIN, SCOUT, GENERAL, MINER, SCOUT, CAPTAIN},
-                    {MARSHAL, SCOUT, MAJOR, COLONEL, SCOUT, CAPTAIN, BOMB, LIEUTENANT, BOMB, LIEUTENANT},
-                    {CAPTAIN, SERGEANT, MAJOR, SPY, MAJOR, LIEUTENANT, BOMB, SERGEANT, BOMB, SERGEANT},
-                    {MINER, SCOUT, MINER, MINER, SERGEANT, BOMB, FLAG, BOMB, MINER, SCOUT}},
-
-            {{CAPTAIN, SCOUT, SCOUT, LIEUTENANT, SCOUT, CAPTAIN, MINER, MARSHAL, SCOUT, CAPTAIN},
-                    {LIEUTENANT, SERGEANT, BOMB, SPY, GENERAL, SCOUT, MAJOR, MAJOR, COLONEL, COLONEL},
-                    {SERGEANT, BOMB, SERGEANT, MAJOR, COLONEL, LIEUTENANT, BOMB, LIEUTENANT, CAPTAIN, SERGEANT},
-                    {SCOUT, MINER, BOMB, SCOUT, MINER, BOMB, FLAG, BOMB, MINER, MINER}},
-
-            {{MARSHAL, CAPTAIN, LIEUTENANT, MINER, SCOUT, CAPTAIN, SCOUT, SCOUT, SCOUT, CAPTAIN},
-                    {SERGEANT, SCOUT, COLONEL, COLONEL, GENERAL, SCOUT, SERGEANT, BOMB, BOMB, LIEUTENANT},
-                    {MAJOR, SCOUT, MAJOR, SPY, CAPTAIN, LIEUTENANT, BOMB, SERGEANT, LIEUTENANT, SCOUT},
-                    {MAJOR, MINER, MINER, MINER, SERGEANT, BOMB, FLAG, BOMB, BOMB, MINER}
-            },
-
-            {{GENERAL, CAPTAIN, SCOUT, SERGEANT, SCOUT, SCOUT, SCOUT, MINER, CAPTAIN, SCOUT},
-                    {MINER, SCOUT, COLONEL, MAJOR, BOMB, LIEUTENANT, MARSHAL, MAJOR, LIEUTENANT, COLONEL},
-                    {BOMB, CAPTAIN, SPY, MAJOR, LIEUTENANT, SCOUT, CAPTAIN, LIEUTENANT, BOMB, SERGEANT},
-                    {SERGEANT, SCOUT, MINER, BOMB, SERGEANT, MINER, MINER, BOMB, FLAG, BOMB}
-            },
-            {{SCOUT, CAPTAIN, LIEUTENANT, GENERAL, SCOUT, CAPTAIN, SCOUT, MARSHAL, CAPTAIN, SCOUT},
-                    {MAJOR, SCOUT, BOMB, SPY, COLONEL, SERGEANT, SCOUT, MAJOR, COLONEL, SERGEANT},
-                    {LIEUTENANT, SERGEANT, BOMB, SCOUT, MAJOR, MINER, LIEUTENANT, CAPTAIN, LIEUTENANT, BOMB},
-                    {MINER, BOMB, SERGEANT, SCOUT, MINER, BOMB, MINER, MINER, BOMB, FLAG}
-            }
-    };
+    public static final Piece[][][] defaultBoards = BoardGenerator.getDefaultBoards();
     public static final Random RANDOM_GENERATOR = new Random();
+    public static final MapMask mapMask = new MapMask(Board.size, Board.size);
     private PossibleMoves possibleRedMoves;
     private PossibleMoves possibleBlueMoves;
     private Piece[][] redPieces;
     private Piece[][] bluePieces;
-    public static final MapMask mapMask = new MapMask(Board.size, Board.size);
     private boolean redFlagInBoard;
     private boolean blueFlagInBoard;
     private String playerTurn;
@@ -57,6 +32,7 @@ public class Board implements Cloneable {
         blueFlagInBoard = true;
         playerTurn = "red";
     }
+
 
 
     public boolean isGameOver() {
@@ -99,7 +75,7 @@ public class Board implements Cloneable {
         return null;
     }
 
-    private void switchTurn(){
+    private void switchTurn() {
         playerTurn = getOppositeColor(playerTurn);
     }
 
@@ -189,7 +165,7 @@ public class Board implements Cloneable {
         for (int row = p.getRow() + 1; row < bluePieces.length; row++) {
             if (!isFree(row, p.getCol())) {
                 Point point = Point.create(row, p.getCol());
-                if(isValid(point)) {
+                if (isValid(point)) {
                     clearMoves(point);
                     addMoves(row, point.getCol(), getColor(point));
                 }
@@ -199,7 +175,7 @@ public class Board implements Cloneable {
         for (int row = p.getRow() - 1; row >= 0; row--) {
             if (!isFree(row, p.getCol())) {
                 Point point = Point.create(row, p.getCol());
-                if(isValid(point)) {
+                if (isValid(point)) {
                     clearMoves(point);
                     addMoves(row, point.getCol(), getColor(point));
                 }
@@ -209,7 +185,7 @@ public class Board implements Cloneable {
         for (int col = p.getCol() + 1; col < bluePieces[0].length; col++) {
             if (!isFree(p.getRow(), col)) {
                 Point point = Point.create(p.getRow(), col);
-                if(isValid(point)) {
+                if (isValid(point)) {
                     clearMoves(point);
                     addMoves(point.getRow(), col, getColor(point));
                 }
@@ -219,7 +195,7 @@ public class Board implements Cloneable {
         for (int col = p.getCol() - 1; col >= 0; col--) {
             if (!isFree(p.getRow(), col)) {
                 Point point = Point.create(p.getRow(), col);
-                if(isValid(point)) {
+                if (isValid(point)) {
                     clearMoves(point);
                     addMoves(point.getRow(), col, getColor(point));
                 }
@@ -262,7 +238,7 @@ public class Board implements Cloneable {
         return isFree(p.getRow(), p.getCol());
     }
 
-    private boolean isFree(int row, int col) {
+    public boolean isFree(int row, int col) {
         return isValid(row, col) && bluePieces[row][col] == null && redPieces[row][col] == null;
     }
 
@@ -275,7 +251,7 @@ public class Board implements Cloneable {
      * @param color the color of the pieces
      */
     private void addMoves(int row, int col, String color) {
-        if(!isValid(row,col))
+        if (!isValid(row, col))
             throw new IllegalArgumentException("the point is out of bounds");
         Piece[][] PlayerPieces = getPieces(color);
         Piece[][] OppositePieces = getOppositePieces(color);
@@ -286,25 +262,25 @@ public class Board implements Cloneable {
         if (!p.isMovable())
             return;
         if (p == SCOUT) {
-            for (int newRow = row - 1; isValid(newRow,col) &&
+            for (int newRow = row - 1; isValid(newRow, col) &&
                     PlayerPieces[newRow][col] == null; newRow--) {
                 moves.addMove(p1, Point.create(newRow, col));
                 if (OppositePieces[newRow][col] != null)
                     break;
             }
-            for (int newCol = col - 1; isValid(row,newCol) &&
+            for (int newCol = col - 1; isValid(row, newCol) &&
                     PlayerPieces[row][newCol] == null; newCol--) {
                 moves.addMove(p1, Point.create(row, newCol));
                 if (OppositePieces[row][newCol] != null)
                     break;
             }
-            for (int newCol = col + 1; isValid(row,newCol) &&
+            for (int newCol = col + 1; isValid(row, newCol) &&
                     PlayerPieces[row][newCol] == null; newCol++) {
                 moves.addMove(p1, Point.create(row, newCol));
                 if (OppositePieces[row][newCol] != null)
                     break;
             }
-            for (int newRow = row + 1; isValid(newRow,col) &&
+            for (int newRow = row + 1; isValid(newRow, col) &&
                     PlayerPieces[newRow][col] == null; newRow++) {
                 moves.addMove(p1, Point.create(newRow, col));
                 if (OppositePieces[newRow][col] != null)
@@ -315,9 +291,9 @@ public class Board implements Cloneable {
                 moves.addMove(p1, Point.create(row - 1, col));
             if (isValid(row + 1, col) && PlayerPieces[row + 1][col] == null)
                 moves.addMove(p1, Point.create(row + 1, col));
-            if (isValid(row,col - 1) && PlayerPieces[row][col - 1] == null)
+            if (isValid(row, col - 1) && PlayerPieces[row][col - 1] == null)
                 moves.addMove(p1, Point.create(row, col - 1));
-            if (isValid(row,col + 1) && PlayerPieces[row][col + 1] == null)
+            if (isValid(row, col + 1) && PlayerPieces[row][col + 1] == null)
                 moves.addMove(p1, Point.create(row, col + 1));
 
         }
@@ -328,7 +304,7 @@ public class Board implements Cloneable {
         Piece[][] pieces = getPieces(color);
         for (int row = 0; row < pieces.length; row++) {
             for (int col = 0; col < pieces[row].length; col++) {
-                if (isValid(row,col) && pieces[row][col] != null)
+                if (isValid(row, col) && pieces[row][col] != null)
                     addMoves(row, col, color);
             }
         }
@@ -365,7 +341,7 @@ public class Board implements Cloneable {
                 mapMask.getValue(row, col);
     }
 
-    public String getOppositeColor(String color) {
+    public static String getOppositeColor(String color) {
         if (color == null)
             return null;
         if ("red".equals(color))
@@ -458,7 +434,7 @@ public class Board implements Cloneable {
     }
 
     public void undoMove(Move move, Piece p1, Piece p2, String color) {
-        undoMove(move.getP1(),move.getP2(),p1,p2,color);
+        undoMove(move.getP1(), move.getP2(), p1, p2, color);
     }
 
     public Move getRandomMove() {

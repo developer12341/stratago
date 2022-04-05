@@ -16,7 +16,7 @@ import javafx.stage.Stage;
 
 import java.util.List;
 
-public class window {
+public class GUIManager {
     private ViewPiece[][] board;
     private boolean setup;
     private Button startGame;
@@ -24,8 +24,8 @@ public class window {
     private Scene scene;
     private BorderPane root;
 
-    public window(Stage stage) {
-        board = new ViewPiece[10][10];
+    public GUIManager(Stage stage) {
+        board = new ViewPiece[Board.size][Board.size];
         selected = null;
         setup = true;
         initGUIObjects();
@@ -37,6 +37,10 @@ public class window {
         ComputerPlayer otherPlayer = new ComputerPlayer(this, c, "blue");
         otherPlayer.setPieces();
         EventHandler<ActionEvent> onButtonClick = new HumanPlayer(this, c, "red", otherPlayer);
+        setEventHandlers(onButtonClick);
+    }
+
+    public void setEventHandlers(EventHandler<ActionEvent> onButtonClick) {
         startGame.setOnAction(onButtonClick);
         for (Button[] row : board) {
             for (Button b : row) {

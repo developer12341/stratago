@@ -9,7 +9,7 @@ class AlphaBetaTest {
     AlphaBeta ab;
     @BeforeEach
     void setUp() {
-        ab = new AlphaBeta(new SpeculationBoard(new Board(), "blue"),4,"blue");
+        ab = new AlphaBeta(new SpeculationBoard(new Board(), "blue"),"blue");
     }
 
     @Test
@@ -18,7 +18,6 @@ class AlphaBetaTest {
 
     @Test
     void chooseMove() {
-        System.out.println(new Board());
         System.out.println(ab.chooseMove());
     }
 }

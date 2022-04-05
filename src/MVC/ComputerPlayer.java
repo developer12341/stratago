@@ -1,36 +1,41 @@
 package MVC;
 
 import MVC.Stratagies.BoardComputerView.SpeculationBoard;
-import MVC.Stratagies.AlphaBeta;
 import MVC.Stratagies.Strategy;
 import MVC.Stratagies.mcts.MCTS;
 import MVC.controller.Controller;
+import MVC.model.Attack;
 import MVC.model.Move;
-import MVC.model.Piece;
-import MVC.view.window;
+import MVC.view.GUIManager;
 
 public class ComputerPlayer {
+    private final SpeculationBoard speculationBoard;
     private String color;
-    private MVC.view.window window;
+    private GUIManager window;
     private Controller c;
     private Strategy strategy;
-    public ComputerPlayer(window window, Controller c, String color) {
+
+    public ComputerPlayer(GUIManager window, Controller c, String color) {
 //        strategy = new RandomizeStrategy();
         this.window = window;
         this.c = c;
         this.color = color;
-        strategy = new MCTS(new SpeculationBoard(c.getBoard(), color),color);
+        this.speculationBoard = new SpeculationBoard(c.getBoard(), color);
+        strategy = new MCTS(speculationBoard, color);
     }
 
 
-    public void movePiece(Move humanPlayerMove, Piece attackingPiece) {
-        strategy.HumanMove(humanPlayerMove, attackingPiece);
+    public Attack movePiece(Attack attack) {
+        speculationBoard.otherPlayerMove(attack.getMove().getP1(), attack.getMove().getP2(), attack.getAttackingPiece());
         Move m = strategy.chooseMove();
-        c.movePiece(m.getP1(),m.getP2());
-
+        return c.movePiece(m.getP1(), m.getP2());
     }
 
     public void setPieces() {
 
+    }
+
+    public void moveComputerPiece(Attack attack) {
+        speculationBoard.thisPlayerMove(attack);
     }
 }

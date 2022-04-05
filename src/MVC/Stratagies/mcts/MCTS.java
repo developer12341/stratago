@@ -159,10 +159,4 @@ public class MCTS implements Strategy {
         }
         return node;
     }
-
-    @Override
-    public void HumanMove(Move move, Piece attackingPiece) {
-        speculationBoard.otherPlayerMove(move.getP1(), move.getP2(), attackingPiece);
-    }
-
 }

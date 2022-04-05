@@ -4,8 +4,9 @@ import javafx.scene.image.Image;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.Serializable;
 
-public enum Piece {
+public enum Piece implements Serializable {
     SPY(1),
     SCOUT(2),
     MINER(3),
@@ -24,18 +25,11 @@ public enum Piece {
     public final int PieceNumber;
     public final Image redPieceImage;
     public final Image bluePieceImage;
+
     Piece(int pieceNumber) {
         PieceNumber = pieceNumber;
         redPieceImage = loadImage(PiecesFolder + "red/red_" + pieceNumber + ".png");
         bluePieceImage = loadImage(PiecesFolder + "blue/blue_" + pieceNumber + ".png");
-    }
-
-    private Image loadImage(String filePath){
-        try {
-            return new Image(new FileInputStream(filePath));
-        } catch (FileNotFoundException e) {
-            return null;
-        }
     }
 
     public static Piece fromInteger(int value) {
@@ -50,24 +44,31 @@ public enum Piece {
             case (8) -> COLONEL;
             case (9) -> GENERAL;
             case (10) -> MARSHAL;
-            case (11), ('B') -> BOMB;
-            case (12), ('F') -> FLAG;
+            case (11), ('B'), ('b') -> BOMB;
+            case (12), ('F'), ('f') -> FLAG;
             case (13) -> PLACEHOLDER;
             default -> throw new IllegalStateException("Unexpected value: " + value);
         };
 
     }
 
-
+    private Image loadImage(String filePath) {
+        try {
+            return new Image(new FileInputStream(filePath));
+        } catch (FileNotFoundException e) {
+            return null;
+        }
+    }
 
     /**
      * this function is returning the winning piece in the case that
      * this piece is attacking some other piece.
+     *
      * @param DefendingPiece the piece that is defending
      * @return the winning piece
      */
     public Piece Attack(Piece DefendingPiece) {
-        if(DefendingPiece == null)
+        if (DefendingPiece == null)
             return this;
         switch (DefendingPiece) {
             case FLAG:

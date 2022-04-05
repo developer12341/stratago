@@ -67,4 +67,8 @@ public class PossiblePiece implements Cloneable {
     public float getProbability(Piece piece) {
         return possiblePieces[piece.PieceNumber - 1];
     }
+
+    public Piece getPiece() {
+        return piece;
+    }
 }

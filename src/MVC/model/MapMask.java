@@ -3,12 +3,10 @@ package MVC.model;
 import java.util.BitSet;
 
 public class MapMask {
-    private final int maxRow;
     private final int maxCol;
     private BitSet array;
 
     public MapMask(int maxRow, int maxCol) {
-        this.maxRow = maxRow;
         this.maxCol = maxCol;
         array = new BitSet(maxRow * maxCol);
         array.set(0, maxCol * maxRow);

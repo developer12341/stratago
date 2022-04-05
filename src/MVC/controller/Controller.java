@@ -1,22 +1,24 @@
 package MVC.controller;
 
-import MVC.model.*;
-import MVC.view.window;
+import MVC.model.Attack;
+import MVC.model.Board;
+import MVC.model.Piece;
+import MVC.model.Point;
+import MVC.view.GUIManager;
 import javafx.event.ActionEvent;
 
-import java.util.Arrays;
 import java.util.Objects;
 
 public class Controller {
     private Board model;
-    private window view;
+    private GUIManager view;
 
 
     public Controller(Board model) {
         this.model = model;
     }
 
-    public void registerView(window view) {
+    public void registerView(GUIManager view) {
         this.view = view;
         Piece[][] visiblePieces = model.getPieces("red");
         Piece[][] oppositePieces = model.getPieces("blue");
@@ -27,7 +29,7 @@ public class Controller {
                 if (visiblePieces[row][col] != null) {
                     view.renderImage(visiblePieces[row][col], "red", row, col);
                 } else if (oppositePieces[row][col] != null) {
-                    view.renderImage(oppositePieces[row][col], "blue", row, col);
+                    view.renderImage(Piece.PLACEHOLDER, "blue", row, col);
                 }
             }
         }
@@ -46,11 +48,11 @@ public class Controller {
         Point SelectedLocation = view.getLocation(view.getSelected());
 
         clearSelected();
-        Piece attackingPiece = movePiece(SelectedLocation, PieceLocation);
-        return new Attack(SelectedLocation, PieceLocation, attackingPiece);
+
+        return movePiece(SelectedLocation, PieceLocation);
     }
 
-    public Piece movePiece(Point p1, Point p2) {
+    public Attack movePiece(Point p1, Point p2) {
         Piece attackingPiece = model.getPiece(p1);
         Piece defendingPiece = model.getPiece(p2);
         Piece winner = model.moveTo(p1, p2);
@@ -65,7 +67,10 @@ public class Controller {
 
         model.updateMoves(p2);
         model.updateMoves(p1);
-        return attackingPiece;
+        if (defendingPiece != null)
+            return new Attack(p1, p2, attackingPiece, defendingPiece);
+        else
+            return new Attack(p1, p2, null, null);
     }
 
     public void setSelected(ActionEvent actionEvent, String playerColor) {
@@ -117,19 +122,6 @@ public class Controller {
         view.setSetup(false);
     }
 
-    public PossibleMoves getMoves(String color) {
-        return model.getMoves(color);
-    }
-
-
-    private Piece[][] getPieces(String color) {
-        return model.getPieces(color);
-    }
-
-    public void printBoard(String playerColor) {
-        System.out.println(Arrays.deepToString(model.getPieces(playerColor)));
-    }
-
     public Board getBoard() {
         return model;
     }
@@ -140,5 +132,13 @@ public class Controller {
 
     public void gameOver(String playerColor) {
         view.gameOver(model.getWinner(), playerColor);
+    }
+
+    public void renderImage(Point p, Piece piece, String color) {
+        if (model.isFree(p))
+            return;
+        if (!Objects.equals(color, model.getColor(p)))
+            return;
+        view.renderImage(piece, color, p.getRow(), p.getCol());
     }
 }

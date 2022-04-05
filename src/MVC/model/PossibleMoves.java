@@ -119,10 +119,15 @@ public class PossibleMoves implements Iterable<Move>, Cloneable {
     }
 
     public Move chooseRandomMove() {
-        int random = Board.RANDOM_GENERATOR.nextInt(MovesList.size());
-        System.out.println(random);
-        Pair<Point, List<Point>> list = MovesList.get(random);
-        random = Board.RANDOM_GENERATOR.nextInt(list.getValue().size());
-        return Move.create(list.getKey(), list.getValue().get(random));
+        int random = Board.RANDOM_GENERATOR.nextInt(size());
+        for (Move move : this){
+            if(random == 0)
+                return move;
+            random--;
+        }
+        return null;
+//        Pair<Point, List<Point>> list = MovesList.get(random);
+//        random = Board.RANDOM_GENERATOR.nextInt(list.getValue().size());
+//        return Move.create(list.getKey(), list.getValue().get(random));
     }
 }

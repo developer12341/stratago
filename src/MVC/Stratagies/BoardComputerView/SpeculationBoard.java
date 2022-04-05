@@ -1,5 +1,6 @@
 package MVC.Stratagies.BoardComputerView;
 
+import MVC.model.Attack;
 import MVC.model.Board;
 import MVC.model.Piece;
 import MVC.model.Point;
@@ -51,13 +52,26 @@ public class SpeculationBoard {
         return otherPieces;
     }
 
+    public void thisPlayerMove(Attack attack){
+        if (attack.getAttackingPiece() == null) {
+            return;
+        }
+        Point p2 = attack.getMove().getP2();
+        if(otherPieces[p2.getRow()][p2.getCol()].getPiece() != null)
+            return;
+        otherPieces[p2.getRow()][p2.getCol()].setPiece(attack.getDefendingPiece());
+        invisiblePieceCount[attack.getDefendingPiece().PieceNumber - 1]--;
+
+    }
+
+
     public void otherPlayerMove(Point p1, Point p2, Piece attackingPiece) {
         if (otherPieces[p1.getRow()][p1.getCol()] == null) {
             throw new IllegalArgumentException("there is no piece in " + p1);
         }
         otherPieces[p2.getRow()][p2.getCol()] = otherPieces[p1.getRow()][p1.getCol()];
         otherPieces[p1.getRow()][p1.getCol()] = null;
-        if (mainBoard.isFree(p2) || color.equals(mainBoard.getColor(p2))) {
+        if (mainBoard.isFree(p2) && color.equals(mainBoard.getColor(p2))) {
             //the piece in p1 attacked and there was a tie or the computer won.
             otherPieces[p2.getRow()][p2.getCol()] = null;
             invisiblePieceCount[attackingPiece.PieceNumber - 1]--;
@@ -181,7 +195,9 @@ public class SpeculationBoard {
         newBoard.initPossibleMoves();
         newBoard.setGameOverFlag("red", true);
         newBoard.setGameOverFlag("blue", true);
+        System.out.println(newBoard);
 
         return newBoard;
     }
+
 }
