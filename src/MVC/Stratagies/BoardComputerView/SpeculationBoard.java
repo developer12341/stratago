@@ -12,17 +12,15 @@ import static MVC.model.Piece.FLAG;
 public class SpeculationBoard {
     private final Board mainBoard;
     private PossiblePiece[][] otherPieces;
-    private int[] invisiblePieceCount;
-    private int[] visiblePieceCount;
+    private final int[] invisiblePieceCount;
+    private final String color;
 
-    private String color;
 
     public SpeculationBoard(Board board, String color) {
         this.mainBoard = board;
         this.color = color;
 
         invisiblePieceCount = new int[]{1, 8, 5, 4, 4, 4, 3, 2, 1, 1, 6, 1};
-        visiblePieceCount = new int[12];
 
         otherPieces = new PossiblePiece[Board.size][Board.size];
         Piece[][][] defaultBoards = Board.defaultBoards;
@@ -34,39 +32,19 @@ public class SpeculationBoard {
                 }
             }
         }
-        //todo: fix these loops
-        for (int col = 0; col < amountOfAppearances[0].length; col++) {
-            otherPieces[6][col] = new PossiblePiece();
-            for (int pieceNumber = 0; pieceNumber < amountOfAppearances[0][col].length; pieceNumber++) {
-                otherPieces[6][col].updateProbability(pieceNumber,
-                        amountOfAppearances[0][col][pieceNumber],
-                        defaultBoards.length);
+
+        for (int row = 0; row < amountOfAppearances.length; row++) {
+            for (int col = 0; col < amountOfAppearances[row].length; col++) {
+                otherPieces[otherPieces.length - amountOfAppearances.length + row][col] = new PossiblePiece();
+                for (int pieceNumber = 0; pieceNumber < amountOfAppearances[row][col].length; pieceNumber++) {
+                    otherPieces[otherPieces.length - amountOfAppearances.length + row][col].updateProbability(pieceNumber,
+                            amountOfAppearances[row][col][pieceNumber],
+                            defaultBoards.length);
+                }
             }
         }
-        for (int col = 0; col < amountOfAppearances[1].length; col++) {
-            otherPieces[7][col] = new PossiblePiece();
-            for (int pieceNumber = 0; pieceNumber < amountOfAppearances[1][col].length; pieceNumber++) {
-                otherPieces[7][col].updateProbability(pieceNumber,
-                        amountOfAppearances[1][col][pieceNumber],
-                        defaultBoards.length);
-            }
-        }
-        for (int col = 0; col < amountOfAppearances[2].length; col++) {
-            otherPieces[8][col] = new PossiblePiece();
-            for (int pieceNumber = 0; pieceNumber < amountOfAppearances[2][col].length; pieceNumber++) {
-                otherPieces[8][col].updateProbability(pieceNumber,
-                        amountOfAppearances[2][col][pieceNumber],
-                        defaultBoards.length);
-            }
-        }
-        for (int col = 0; col < amountOfAppearances[3].length; col++) {
-            otherPieces[9][col] = new PossiblePiece();
-            for (int pieceNumber = 0; pieceNumber < amountOfAppearances[3][col].length; pieceNumber++) {
-                otherPieces[9][col].updateProbability(pieceNumber,
-                        amountOfAppearances[3][col][pieceNumber],
-                        defaultBoards.length);
-            }
-        }
+
+
     }
 
     public PossiblePiece[][] getOtherPieces() {
@@ -93,17 +71,9 @@ public class SpeculationBoard {
             else {
                 otherPieces[p2.getRow()][p2.getCol()].setProbability(Piece.BOMB, 0);
                 otherPieces[p2.getRow()][p2.getCol()].setProbability(FLAG, 0);
-                updateProbability(p1, p2);
             }
         }
     }
-
-    private void updateProbability(Point p1, Point p2) {
-        //todo:need to update the piece's probabilities to reflect his movement.
-
-
-    }
-
 
     private int updateSums(Piece piece, int[] pieceCount, int pieceSum) {
         if (pieceCount[piece.PieceNumber - 1] == 0)

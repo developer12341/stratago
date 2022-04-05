@@ -20,6 +20,11 @@ class SpeculationBoardTest {
     }
 
     @Test
+    void testSetup(){
+        System.out.println(Arrays.deepToString(b.getOtherPieces()));
+    }
+
+    @Test
     void otherPlayerMove() {
         PossiblePiece p1 = b.getOtherPieces()[6][3];
         b.otherPlayerMove(Point.create(6,3),Point.create(5,3), null);
