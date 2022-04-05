@@ -14,7 +14,8 @@ import static java.lang.Math.abs;
 public class Point {
 
     private static final PointCache cache = new PointCache(10, 10);
-    private int row, col;
+    private final int row;
+    private final int col;
 
 
     private Point(int row, int col) {

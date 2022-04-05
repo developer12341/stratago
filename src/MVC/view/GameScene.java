@@ -20,7 +20,7 @@ import java.util.List;
  * this is the manager for all things GUI related.
  * when the program wants to change the window it goes throw here.
  */
-public class GUIManager {
+public class GameScene {
     /**
      * the buttons
      */
@@ -36,17 +36,20 @@ public class GUIManager {
 
     private BorderPane root;
 
-    public GUIManager(Stage stage) {
+    public GameScene(Stage stage) {
         board = new ViewPiece[Board.size][Board.size];
         selected = null;
         setup = true;
         initGUIObjects();
-        stage.setScene(scene);
-        stage.show();
+    }
+
+    public Scene getScene() {
+        return scene;
     }
 
     /**
      * create the players and add the human player to listen on every click.
+     *
      * @param c the controller
      */
     public void setEventHandlers(Controller c) {
@@ -62,7 +65,7 @@ public class GUIManager {
         startGame.setOnAction(onButtonClick);
         for (Button[] row : board) {
             for (Button b : row) {
-                if(b != null){
+                if (b != null) {
                     b.setOnAction(onButtonClick);
                 }
             }
@@ -78,7 +81,7 @@ public class GUIManager {
         GridPane grid = new GridPane();
         for (int row = 0; row < board.length; row++) {
             for (int col = 0; col < board[row].length; col++) {
-                if(Board.mapMask.getValue(row, col)){
+                if (Board.mapMask.getValue(row, col)) {
                     board[row][col] = new ViewPiece(row, col);
                     board[row][col].setMinWidth(50);
                     board[row][col].setMinHeight(40);
@@ -116,6 +119,7 @@ public class GUIManager {
     /**
      * this function starts the setup or stops it.
      * if the setup is stopped it hides the start game button.
+     *
      * @param setup start the setup or stop it
      */
     public void setSetup(boolean setup) {
@@ -140,7 +144,8 @@ public class GUIManager {
     /**
      * this function set the selected button and, if there are moves
      * it highlight them
-     * @param p the point of the selected button
+     *
+     * @param p      the point of the selected button
      * @param points the other points the selected Piece can go to.
      */
     public void setSelected(Point p, List<Point> points) {
@@ -154,7 +159,8 @@ public class GUIManager {
     /**
      * if the user would like to highlight the selected button
      * they should call this function
-     * @param p the point of the selected button
+     *
+     * @param p      the point of the selected button
      * @param points the other points the selected Piece can go to.
      */
     private void highlightMoves(Point p, List<Point> points) {
@@ -175,6 +181,7 @@ public class GUIManager {
 
     /**
      * overloading the getLocation for beauty purposes
+     *
      * @param actionEvent the event clicked
      * @return the location of the click
      */
@@ -188,6 +195,7 @@ public class GUIManager {
     /**
      * get the location of a button in the board.
      * it grabs the stored location from the ViewPiece object.
+     *
      * @return the location of the button
      */
     public Point getLocation(Button button) {
@@ -198,6 +206,7 @@ public class GUIManager {
 
     /**
      * swap the images at p1 with p2
+     *
      * @param p1 point 1
      * @param p2 point 2
      */
@@ -218,6 +227,7 @@ public class GUIManager {
 
     /**
      * this function clears the image in p
+     *
      * @param p a point in the board
      */
     public void clearImage(Point p) {
@@ -226,6 +236,7 @@ public class GUIManager {
 
     /**
      * this function moves the image at p1 to p2
+     *
      * @param p1 the point to move from
      * @param p2 the point to move to
      */
@@ -246,7 +257,8 @@ public class GUIManager {
     /**
      * if the user would like to unhighlight the selected button
      * they should call this function
-     * @param p the point of the selected button
+     *
+     * @param p      the point of the selected button
      * @param points the other points the selected Piece can go to.
      */
     private void unhighlightMoves(Point p, List<Point> points) {
@@ -268,18 +280,19 @@ public class GUIManager {
 
     /**
      * when the game ended this function is called
-     * @param winner the winner of the game
+     *
+     * @param winner      the winner of the game
      * @param playerColor the color of the human player
      */
     public void gameOver(String winner, String playerColor) {
-        if(winner.equals(playerColor)){
+        if (winner.equals(playerColor)) {
             System.out.println(playerColor + " you won!");
-        }else{
+        } else {
             System.out.println(playerColor + " you lost:(");
         }
-        for (ViewPiece[] row: board){
-            for (ViewPiece button: row){
-                if(button != null)
+        for (ViewPiece[] row : board) {
+            for (ViewPiece button : row) {
+                if (button != null)
                     button.setDisable(true);
             }
         }

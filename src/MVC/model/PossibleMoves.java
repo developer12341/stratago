@@ -12,12 +12,10 @@ import java.util.*;
  * }
  */
 public class PossibleMoves implements Iterable<Move>, Cloneable {
-    public HashMap<Point, List<Point>> Moves;
-    public List<Pair<Point, List<Point>>> MovesList;
+    public HashMap<Point, List<Point>> Moves;// {Point -> [Point1, Point2], Point3 -> [Point4...}
 
     public PossibleMoves() {
         Moves = new HashMap<>();
-        MovesList = new ArrayList<>();
     }
 
     /**
@@ -29,7 +27,6 @@ public class PossibleMoves implements Iterable<Move>, Cloneable {
             throw new IllegalArgumentException("the point was already added");
         if (!Moves.containsKey(p1)) {
             Moves.put(p1, new ArrayList<>());
-            MovesList.add(new Pair<>(p1, Moves.get(p1)));
         }
         if (!Moves.get(p1).contains(p2))
             Moves.get(p1).add(p2);
@@ -50,14 +47,11 @@ public class PossibleMoves implements Iterable<Move>, Cloneable {
     public void clear(Point p) {
         if (!Moves.containsKey(p))
             return;
-        var obj = new Pair<>(p, Moves.get(p));
-        MovesList.remove(obj);
         Moves.remove(p);
     }
 
     public void clear() {
         Moves.clear();
-        MovesList.clear();
     }
 
     @Override

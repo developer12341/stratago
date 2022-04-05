@@ -8,11 +8,17 @@ import java.util.Random;
 import static MVC.model.Piece.FLAG;
 import static MVC.model.Piece.SCOUT;
 
+/**
+ * this class encapsulate all the data about the board
+ */
 public class Board implements Cloneable {
+    //all of these are variables that needed only for reading purposes, so they are attributes of Board
     public static final int size = 10;
     public static final Piece[][][] defaultBoards = BoardGenerator.getDefaultBoards();
     public static final Random RANDOM_GENERATOR = new Random();
     public static final MapMask mapMask = new MapMask(Board.size, Board.size);
+
+
     private PossibleMoves possibleRedMoves;
     private PossibleMoves possibleBlueMoves;
     private Piece[][] redPieces;
@@ -21,11 +27,16 @@ public class Board implements Cloneable {
     private boolean blueFlagInBoard;
     private String playerTurn;
 
+
     public Board() {
+        //init the boards
         redPieces = new Piece[Board.size][Board.size];
         bluePieces = new Piece[Board.size][Board.size];
+        //fill them
         setRandomStartingBoard("red");
         setRandomStartingBoard("blue");
+
+        //init the rest of the variables.
         possibleRedMoves = new PossibleMoves();
         possibleBlueMoves = new PossibleMoves();
         redFlagInBoard = true;
@@ -33,18 +44,36 @@ public class Board implements Cloneable {
         playerTurn = "red";
     }
 
+    /**
+     * there are two colors only in the board.
+     *
+     * @param color the color of the player
+     * @return the color of the opposite player
+     */
+    public static String getOppositeColor(String color) {
+        if (color == null)
+            return null;
+        if ("red".equals(color))
+            return "blue";
+        if ("blue".equals(color))
+            return "red";
+        return null;
+    }
 
-
+    /**
+     * @return true if one of the flags is missing or if one of the players doesn't have any more moves
+     */
     public boolean isGameOver() {
         return !(redFlagInBoard && blueFlagInBoard) || possibleBlueMoves.isEmpty() || possibleRedMoves.isEmpty();
     }
 
     private void setRandomStartingBoard(String playerColor) throws IllegalArgumentException {
+        //get a random starting board
         Piece[][] startingBoard = defaultBoards[(int) (Math.random() * (defaultBoards.length))];
-        //for debugging
-//        Piece[][] startingBoard = defaultBoards[0];
         Piece[][] playerPieces = getPieces(playerColor);
 
+
+        //copy it to the appropriated place
         if (playerColor.equals("red")) {
             for (int row = 0; row < startingBoard.length; row++) {
                 System.arraycopy(startingBoard[row],
@@ -64,7 +93,10 @@ public class Board implements Cloneable {
         }
     }
 
-
+    /**
+     * @param p a point in the board
+     * @return the color of the piece in the board
+     */
     public String getColor(Point p) {
         if (p == null)
             return null;
@@ -78,7 +110,6 @@ public class Board implements Cloneable {
     private void switchTurn() {
         playerTurn = getOppositeColor(playerTurn);
     }
-
 
     public Piece[][] getPieces(String playerColor) {
         if ("red".equals(playerColor))
@@ -96,7 +127,13 @@ public class Board implements Cloneable {
         throw new IllegalArgumentException("there is no " + playerColor + " player!");
     }
 
-
+    /**
+     * at the start of the game the player can switch between the pieces
+     *
+     * @param p1 the location of the first piece
+     * @param p2 the location of the second piece
+     * @return true if the switch was successful
+     */
     public boolean switchPieces(Point p1, Point p2) {
         String p1Color = getColor(p1);
         String p2Color = getColor(p2);
@@ -113,7 +150,13 @@ public class Board implements Cloneable {
         return true;
     }
 
-
+    /**
+     * move a piece from p1 to p2
+     *
+     * @param p1 the piece to move
+     * @param p2 the destination
+     * @return the winning piece.
+     */
     public Piece moveTo(Point p1, Point p2) {
         String p1Color = getColor(p1);
         String p2Color = getColor(p2);
@@ -147,7 +190,6 @@ public class Board implements Cloneable {
     }
 
     public void setGameOverFlag(String color, Boolean value) {
-
         if (color.equals("red")) {
             redFlagInBoard = value;
             return;
@@ -158,6 +200,19 @@ public class Board implements Cloneable {
         throw new IllegalArgumentException("there is no " + color + " player!");
     }
 
+    /**
+     * this function update the moves at a point, and it updates the not correct moves at the points
+     * in all directions
+     * |
+     * |
+     * |
+     * ------p--------
+     * |
+     * |
+     * |
+     *
+     * @param p a point in the board
+     */
     public void updateMoves(Point p) {
         clearMoves(p);
         if (!isFree(p))
@@ -204,6 +259,11 @@ public class Board implements Cloneable {
         }
     }
 
+    /**
+     * @param p1 the starting point
+     * @param p2 the destination
+     * @return true if it is a valid move.
+     */
     public boolean isPossibleMove(Point p1, Point p2) {
         PossibleMoves moves = getMoves(getColor(p1));
         return moves.contains(p1, p2);
@@ -221,6 +281,10 @@ public class Board implements Cloneable {
         return getMoves(getColor(p)).getMoves(p);
     }
 
+    /**
+     * @param p a point
+     * @return true if the point has any legal moves
+     */
     public boolean doesHaveMoves(Point p) {
         String color = getColor(p);
         if (color == null)
@@ -228,7 +292,9 @@ public class Board implements Cloneable {
         return getMoves(color).contains(p);
     }
 
-
+    /**
+     * clear the moves at a point.
+     */
     private void clearMoves(Point p) {
         possibleRedMoves.clear(p);
         possibleBlueMoves.clear(p);
@@ -242,9 +308,8 @@ public class Board implements Cloneable {
         return isValid(row, col) && bluePieces[row][col] == null && redPieces[row][col] == null;
     }
 
-
     /**
-     * there must be a piece in board[row][col]
+     * this function add all the possible moves to a point
      *
      * @param row   row in the board
      * @param col   column in the board
@@ -262,6 +327,7 @@ public class Board implements Cloneable {
         if (!p.isMovable())
             return;
         if (p == SCOUT) {
+            //if the piece is a scout then it has the ability to move in every direction
             for (int newRow = row - 1; isValid(newRow, col) &&
                     PlayerPieces[newRow][col] == null; newRow--) {
                 moves.addMove(p1, Point.create(newRow, col));
@@ -299,7 +365,10 @@ public class Board implements Cloneable {
         }
     }
 
-
+    /**
+     * initialize all the moves of a certain color
+     * @param color the color of the pieces to initialize
+     */
     public void initPossibleMoves(String color) {
         Piece[][] pieces = getPieces(color);
         for (int row = 0; row < pieces.length; row++) {
@@ -341,17 +410,9 @@ public class Board implements Cloneable {
                 mapMask.getValue(row, col);
     }
 
-    public static String getOppositeColor(String color) {
-        if (color == null)
-            return null;
-        if ("red".equals(color))
-            return "blue";
-        if ("blue".equals(color))
-            return "red";
-        return null;
-    }
-
-
+    /**
+     * clone this object with the pieces of color.
+     */
     public Board clone(String color) {
         try {
             Board clone = (Board) super.clone();
@@ -377,6 +438,13 @@ public class Board implements Cloneable {
         }
     }
 
+    /**
+     * @param point1 the starting point of the move
+     * @param point2 the ending point of the move
+     * @param attackingPiece the attacking piece
+     * @param defendingPiece the defending piece
+     * @param color the color of the attacker.
+     */
     public void undoMove(Point point1, Point point2, Piece attackingPiece, Piece defendingPiece, String color) {
         possibleRedMoves.clear(point1);
         possibleRedMoves.clear(point2);
@@ -395,6 +463,9 @@ public class Board implements Cloneable {
         setPiece(p.getRow(), p.getCol(), Piece, color);
     }
 
+    /**
+     * @return the winner of the game
+     */
     public String getWinner() {
         if (!isGameOver())
             return null;

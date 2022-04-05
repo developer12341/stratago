@@ -4,11 +4,16 @@ import MVC.model.caches.MoveCache;
 
 import java.util.Objects;
 
+/**
+ * this class is meant to represent a move on the board.
+ * it is an immutable object, if you need to change one of the fields a new object will
+ * be created
+ */
 public class Move {
     private static final MoveCache cache = new MoveCache();
 
-    private Point p1;
-    private Point p2;
+    private final Point p1;
+    private final Point p2;
 
     public static Move create(Point p1, Point p2){
         if(cache.contains(p1, p2))

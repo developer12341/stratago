@@ -4,22 +4,39 @@ import MVC.model.Attack;
 import MVC.model.Board;
 import MVC.model.Piece;
 import MVC.model.Point;
-import MVC.view.GUIManager;
+import MVC.view.GameScene;
 import javafx.event.ActionEvent;
 
 import java.util.Objects;
 
+/**
+ * this class is the controller, it is the
+ * bridge between the model and the view.
+ */
 public class Controller {
+    public static boolean showPiece = false;
+
+
     private Board model;
-    private GUIManager view;
+    private GameScene view;
 
 
+    /**
+     * @param model
+     */
     public Controller(Board model) {
         this.model = model;
     }
 
-    public void registerView(GUIManager view) {
+    /**
+     * register the view and show all the pieces.
+     */
+    public void registerView(GameScene view) {
         this.view = view;
+        renderPieces();
+    }
+
+    public void renderPieces() {
         Piece[][] visiblePieces = model.getPieces("red");
         Piece[][] oppositePieces = model.getPieces("blue");
         for (int row = 0; row < visiblePieces.length; row++) {
@@ -29,12 +46,19 @@ public class Controller {
                 if (visiblePieces[row][col] != null) {
                     view.renderImage(visiblePieces[row][col], "red", row, col);
                 } else if (oppositePieces[row][col] != null) {
-                    view.renderImage(Piece.PLACEHOLDER, "blue", row, col);
+                    if(!showPiece)
+                        view.renderImage(Piece.PLACEHOLDER, "blue", row, col);
+                    else
+                        view.renderImage(oppositePieces[row][col], "blue", row, col);
                 }
             }
         }
     }
 
+    /**
+     * switch the selected piece with the current piece.
+     * @param actionEvent the current piece.
+     */
     public void switchWithSelected(ActionEvent actionEvent) {
         Point PieceLocation = view.getLocation(actionEvent);
         Point SelectedLocation = view.getLocation(view.getSelected());
@@ -43,6 +67,11 @@ public class Controller {
         view.swapImages(PieceLocation, SelectedLocation);
     }
 
+    /**
+     * move the selected piece to the current piece.
+     * @param actionEvent the current piece
+     * @return the attack made on the player.
+     */
     public Attack moveSelectedTo(ActionEvent actionEvent) {
         Point PieceLocation = view.getLocation(actionEvent);
         Point SelectedLocation = view.getLocation(view.getSelected());
@@ -52,6 +81,12 @@ public class Controller {
         return movePiece(SelectedLocation, PieceLocation);
     }
 
+    /**
+     * move the piece from p1 to p2 and update the moves and the view
+     * @param p1 the starting point
+     * @param p2 the destination
+     * @return the attack made.
+     */
     public Attack movePiece(Point p1, Point p2) {
         Piece attackingPiece = model.getPiece(p1);
         Piece defendingPiece = model.getPiece(p2);
@@ -73,6 +108,11 @@ public class Controller {
             return new Attack(p1, p2, null, null);
     }
 
+    /**
+     * set the button to be selected if it matches the player's color.
+     * @param actionEvent the current button
+     * @param playerColor the color
+     */
     public void setSelected(ActionEvent actionEvent, String playerColor) {
         Point PieceLocation = view.getLocation(actionEvent);
         String PieceColor = model.getColor(PieceLocation);
@@ -82,6 +122,10 @@ public class Controller {
         view.setSelected(PieceLocation, model.getMoves(PieceLocation));
     }
 
+    /**
+     * @param actionEvent a button
+     * @return true if the move from the selected button to this button is legal
+     */
     public boolean isPossibleMove(ActionEvent actionEvent) {
 
         Point PieceLocation = view.getLocation(actionEvent);
@@ -97,6 +141,11 @@ public class Controller {
         return model.isPossibleMove(SelectedLocation, PieceLocation);
     }
 
+    /**
+     * @param actionEvent the button clicked
+     * @param playerColor the color of the player
+     * @return true if the point of this button has any legal moves
+     */
     public boolean doesHaveMoves(ActionEvent actionEvent, String playerColor) {
         Point PieceLocation = view.getLocation(actionEvent);
         String PieceColor = model.getColor(PieceLocation);
@@ -117,6 +166,9 @@ public class Controller {
         }
     }
 
+    /**
+     * initialize the possible moves of both players and start the game
+     */
     public void startGame() {
         model.initPossibleMoves();
         view.setSetup(false);
@@ -134,6 +186,9 @@ public class Controller {
         view.gameOver(model.getWinner(), playerColor);
     }
 
+    /**
+     * render a piece at a certain point.
+     */
     public void renderImage(Point p, Piece piece, String color) {
         if (model.isFree(p))
             return;

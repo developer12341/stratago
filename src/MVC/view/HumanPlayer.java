@@ -13,7 +13,7 @@ import javafx.event.EventHandler;
  */
 public class HumanPlayer implements EventHandler<ActionEvent> {
 
-    private GUIManager view;
+    private GameScene view;
     private Controller controller;
     private String playerColor;
     private ComputerPlayer otherPlayer;
@@ -24,7 +24,7 @@ public class HumanPlayer implements EventHandler<ActionEvent> {
      * @param playerColor the color of the human player
      * @param otherPlayer the computer player.
      */
-    public HumanPlayer(GUIManager view, Controller controller,
+    public HumanPlayer(GameScene view, Controller controller,
                        String playerColor, ComputerPlayer otherPlayer) {
         this.view = view;
         this.controller = controller;

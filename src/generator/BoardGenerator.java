@@ -4,13 +4,18 @@ import MVC.model.Piece;
 import MVC.model.Point;
 
 import java.io.*;
-import java.util.Arrays;
 import java.util.Random;
 
 import static MVC.model.Piece.*;
 
+/**
+ * this class is here to generate, save, and load a lot of starting boards.
+ * in order for the AI to make predictions the board needs to have a lot of data about starting
+ * moves.
+ * there is no database of stratego games so I had to make some by myself.
+ */
 public class BoardGenerator {
-    private static final String filePath = "C:\\Users\\idodo\\IdeaProjects\\stratago\\src\\generator\\boards.txt";
+    private static final String filePath = "src/generator/boards.txt";
     private static final Random randomGenerator = new Random();
     private int[] pieceCount;
     private int pieceSum;
@@ -18,11 +23,6 @@ public class BoardGenerator {
 
     public BoardGenerator() {
         reset();
-    }
-
-    public static void main(String[] args) {
-
-        System.out.println(Arrays.deepToString(getDefaultBoards()));
     }
 
     private static String printBoard(Piece[][] b) {
@@ -46,6 +46,9 @@ public class BoardGenerator {
         return String.valueOf(outMsg);
     }
 
+    /**
+     * load from a file a lot of starting boards.
+     */
     public static Piece[][][] getDefaultBoards() {
 
         // Creating an object of BufferedReader class
@@ -89,6 +92,9 @@ public class BoardGenerator {
         }
     }
 
+    /**
+     * save a board to the file.
+     */
     public static void saveBoard(Piece[][] board) {
         try {
             File file = new File("C:\\Users\\idodo\\IdeaProjects\\stratago\\src\\generator\\boards.txt");
@@ -111,11 +117,14 @@ public class BoardGenerator {
         return Piece.fromInteger(randomGenerator.nextInt(pieceCount.length) + 1);
     }
 
+    /**
+     * generate a random board.
+     */
     public Piece[][] generate() {
         reset();
         int flagLocation = randomGenerator.nextInt(10);
         updatePiece(3, flagLocation, FLAG);
-        setBombsStrategy1(flagLocation, board);
+        setBombs(flagLocation, board);
         while (pieceCount[BOMB.PieceNumber - 1] != 0) {
             int randomCol;
             int randomRow;
@@ -151,7 +160,7 @@ public class BoardGenerator {
         pieceSum--;
     }
 
-    private void setBombsStrategy1(int flagLocation, Piece[][] board) {
+    private void setBombs(int flagLocation, Piece[][] board) {
         updatePiece(2, flagLocation, BOMB);
         if (flagLocation > 0) {
             updatePiece(3, flagLocation - 1, BOMB);
@@ -162,6 +171,9 @@ public class BoardGenerator {
 
     }
 
+    /**
+     * reset the data to make room for a new board
+     */
     private void reset() {
         pieceCount = new int[]{1, 8, 5, 4, 4, 4, 3, 2, 1, 1, 6, 1};
         pieceSum = 40;

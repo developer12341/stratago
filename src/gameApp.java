@@ -1,6 +1,8 @@
 import MVC.controller.Controller;
 import MVC.model.Board;
-import MVC.view.GUIManager;
+import MVC.view.GameScene;
+import MVC.view.SettingScene;
+import MVC.view.StartScene;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
@@ -15,11 +17,18 @@ public class gameApp extends Application {
     @Override
     public void start(Stage stage) {
         Board model = new Board();
-        GUIManager view = new GUIManager(stage);
+        GameScene view = new GameScene(stage);
+        StartScene startScene = new StartScene();
+        SettingScene settingScene = new SettingScene();
         Controller c = new Controller(model);
 
         c.registerView(view);
         view.setEventHandlers(c);
+        startScene.setEventHandler(stage, view.getScene(),settingScene.getScene(), c);
+        settingScene.setEventHandler(stage,startScene.getScene());
+
+        stage.setScene(startScene.getScene());
+        stage.show();
 
     }
 }

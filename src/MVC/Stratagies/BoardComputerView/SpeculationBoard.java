@@ -255,7 +255,6 @@ public class SpeculationBoard {
         newBoard.initPossibleMoves();
         newBoard.setGameOverFlag("red", true);
         newBoard.setGameOverFlag("blue", true);
-        System.out.println(newBoard);
 
         return newBoard;
     }

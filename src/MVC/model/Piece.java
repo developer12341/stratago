@@ -6,6 +6,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.Serializable;
 
+/**
+ * this enum represent a piece on the board.
+ */
 public enum Piece implements Serializable {
     SPY(1),
     SCOUT(2),
@@ -22,7 +25,13 @@ public enum Piece implements Serializable {
     PLACEHOLDER(13);
 
     private static final String PiecesFolder = "src/media/images/pieces/";
+
+    /**
+     * the piece's number is also the piece's rank.
+     */
     public final int PieceNumber;
+
+    //these are the images that are correlated with the piece.
     public final Image redPieceImage;
     public final Image bluePieceImage;
 
@@ -32,6 +41,10 @@ public enum Piece implements Serializable {
         bluePieceImage = loadImage(PiecesFolder + "blue/blue_" + pieceNumber + ".png");
     }
 
+    /**
+     * @param value the piece's number
+     * @return the piece with this number
+     */
     public static Piece fromInteger(int value) {
         return switch (value) {
             case (1), ('S') -> SPY;
@@ -52,6 +65,10 @@ public enum Piece implements Serializable {
 
     }
 
+    /**
+     * @param filePath the path to the image
+     * @return the Image object
+     */
     private Image loadImage(String filePath) {
         try {
             return new Image(new FileInputStream(filePath));
@@ -98,6 +115,10 @@ public enum Piece implements Serializable {
         return super.toString() + "(%d)".formatted(PieceNumber);
     }
 
+    /**
+     * this function checks if the piece is movable.
+     * it is movable if the piece's number is between 1 and 10
+     */
     public boolean isMovable() {
         return 1 <= PieceNumber && PieceNumber <= 10;
     }
