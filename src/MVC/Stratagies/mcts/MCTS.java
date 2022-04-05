@@ -38,10 +38,6 @@ public class MCTS implements Strategy {
 
     @Override
     public Move chooseMove() {
-        //todo: implement.
-        //choose a move from board.getPossibleMoves() with monte carlo tree search
-
-
         Board board = speculationBoard.getBoard();
 
         Node tree = new Node();
@@ -63,17 +59,19 @@ public class MCTS implements Strategy {
                 moveHistory.push(move);
                 movePiece(board, move);
             }
-            selectedNode = expandNodeAndReturnRandom(board, selectedNode, board.getPlayerTurn());
+            if(!board.isGameOver())
+                selectedNode = expandNodeAndReturnRandom(board, selectedNode, board.getPlayerTurn());
 
             //SIMULATE
-            String simulationResult = simulateGame(board, selectedNode, board.getPlayerTurn());
+            String simulationResult = simulateGame(board, selectedNode);
 
             //PROPAGATE
             backPropagation(board, simulationResult, selectedNode);
+
             while (!gameHistory.isEmpty()) {
                 Piece p2 = gameHistory.pop();
                 Piece p1 = gameHistory.pop();
-                board.undoMove(moveHistory.pop(), p1, p2, board.getOppositeColor(board.getPlayerTurn()));
+                board.undoMove(moveHistory.pop(), p1, p2, Board.getOppositeColor(board.getPlayerTurn()));
             }
 
 
@@ -87,18 +85,21 @@ public class MCTS implements Strategy {
     private void backPropagation(Board board, String simulationResult, Node node) {
         while (node != null) {
             node.incrementVisits();
-            if (board.getOppositeColor(board.getPlayerTurn()).equals(simulationResult)) {
+            if (Board.getOppositeColor(board.getPlayerTurn()).equals(simulationResult)) {
                 node.incrementScore();
             }
             node = node.getParent();
         }
     }
 
-    private String simulateGame(Board board, Node selectedNode, String playerTurn) {
+    private String simulateGame(Board board, Node selectedNode) {
         Stack<Piece> gameHistory = new Stack<>();
         Stack<Move> moveHistory = new Stack<>();
-        if (board.isGameOver())
+        if (board.isGameOver()) {
+            if(Board.getOppositeColor(computerColor).equals(board.getWinner()))
+                selectedNode.getParent().setScore(Integer.MIN_VALUE);
             return board.getWinner();
+        }
         Move move = selectedNode.getMove();
         if (move != null) {
             Piece p1 = board.getPiece(move.getP1());
@@ -122,7 +123,7 @@ public class MCTS implements Strategy {
         while (!gameHistory.isEmpty()) {
             Piece p2 = gameHistory.pop();
             Piece p1 = gameHistory.pop();
-            board.undoMove(moveHistory.pop(), p1, p2, board.getOppositeColor(board.getPlayerTurn()));
+            board.undoMove(moveHistory.pop(), p1, p2, Board.getOppositeColor(board.getPlayerTurn()));
         }
         return winner;
     }

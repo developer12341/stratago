@@ -67,4 +67,9 @@ public class Node {
     public void incrementVisits() {
         visits++;
     }
+
+    public void setScore(int score) {
+        this.score = score;
+
+    }
 }
