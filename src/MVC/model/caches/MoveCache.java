@@ -7,6 +7,11 @@ import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * this is a cache for the Move object. the reason I need a cache in here is that it is a
+ * very used object. if I won't have a caching system there will be a lot of garbage collection that slows
+ * the program down
+ */
 public class MoveCache {
 
     public final Map<Point, Map<Point, Move>> cache;

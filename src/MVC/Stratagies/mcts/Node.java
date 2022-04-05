@@ -7,6 +7,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+/**
+ * a node that continues a move.
+ */
 public class Node {
 
     private Node parent;

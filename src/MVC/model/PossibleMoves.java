@@ -4,20 +4,32 @@ import MVC.model.Iterators.PossibleMoveIterator;
 
 import java.util.*;
 
+/**
+ * this class encapsulate all the moves a player can make.
+ * it is an iterable and can be iterated over in the following format
+ * for(Move move: possiblemoves){
+ * ...
+ * }
+ */
 public class PossibleMoves implements Iterable<Move>, Cloneable {
     public HashMap<Point, List<Point>> Moves;
-    public List<Pair<Point,List<Point>>> MovesList;
+    public List<Pair<Point, List<Point>>> MovesList;
+
     public PossibleMoves() {
         Moves = new HashMap<>();
         MovesList = new ArrayList<>();
     }
 
+    /**
+     * @param p1 the starting point
+     * @param p2 the ending point
+     */
     public void addMove(Point p1, Point p2) {
         if (contains(p1, p2))
             throw new IllegalArgumentException("the point was already added");
         if (!Moves.containsKey(p1)) {
             Moves.put(p1, new ArrayList<>());
-            MovesList.add(new Pair<>(p1,Moves.get(p1)));
+            MovesList.add(new Pair<>(p1, Moves.get(p1)));
         }
         if (!Moves.get(p1).contains(p2))
             Moves.get(p1).add(p2);
@@ -36,7 +48,7 @@ public class PossibleMoves implements Iterable<Move>, Cloneable {
     }
 
     public void clear(Point p) {
-        if(!Moves.containsKey(p))
+        if (!Moves.containsKey(p))
             return;
         var obj = new Pair<>(p, Moves.get(p));
         MovesList.remove(obj);
@@ -87,8 +99,14 @@ public class PossibleMoves implements Iterable<Move>, Cloneable {
         return Moves.isEmpty();
     }
 
+    /**
+     *
+     * @return an iterator of this possible move set.
+     */
     @Override
     public Iterator<Move> iterator() {
+//        this iterator is not influenced by and changes to the data structure in the future to prevent an error
+//        accruing
         HashMap<Point, List<Point>> moves = new HashMap<>();
         //cloning Moves and the lists inside Moves.
         for (Map.Entry<Point, List<Point>> entry : Moves.entrySet()) {
@@ -118,16 +136,16 @@ public class PossibleMoves implements Iterable<Move>, Cloneable {
         }
     }
 
+    /**
+     * @return a random move
+     */
     public Move chooseRandomMove() {
         int random = Board.RANDOM_GENERATOR.nextInt(size());
-        for (Move move : this){
-            if(random == 0)
+        for (Move move : this) {
+            if (random == 0)
                 return move;
             random--;
         }
         return null;
-//        Pair<Point, List<Point>> list = MovesList.get(random);
-//        random = Board.RANDOM_GENERATOR.nextInt(list.getValue().size());
-//        return Move.create(list.getKey(), list.getValue().get(random));
     }
 }

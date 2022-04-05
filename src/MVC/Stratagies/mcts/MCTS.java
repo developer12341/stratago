@@ -10,6 +10,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Stack;
 
+/**
+ * this function is not in use in the program, so I won't document it.
+ * it is a Monte Carlo Tree Search, and it is using the UTC algorithm
+ */
 public class MCTS implements Strategy {
     private static final long MAX_TRIAL = 3000;
     private String computerColor;

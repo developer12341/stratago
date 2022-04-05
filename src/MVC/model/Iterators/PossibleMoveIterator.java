@@ -7,6 +7,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * iterator of Moves.
+ */
 public class PossibleMoveIterator implements Iterator<Move> {
     private Iterator<Map.Entry<Point, List<Point>>> mapHead;
     private Map.Entry<Point, List<Point>> currentEntry;

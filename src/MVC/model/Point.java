@@ -12,6 +12,7 @@ import static java.lang.Math.abs;
  * be created
  */
 public class Point {
+
     private static final PointCache cache = new PointCache(10, 10);
     private int row, col;
 
@@ -63,6 +64,10 @@ public class Point {
     }
 
     /**
+     * if in normal euclidean geometry the distance is SQRT(A*A + B*B)
+     * in taxicab geometry the distance is just A + B;
+     * the reason for it is that in this game you can move at a diagonal,
+     * so you have to move throw X and Y
      * @param p the point of origin
      * @return the "taxicab geometry" distance from p to this point.
      */

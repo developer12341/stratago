@@ -1,5 +1,6 @@
 package MVC.Stratagies.BoardComputerView;
 
+import MVC.model.Attack;
 import MVC.model.Board;
 import MVC.model.Piece;
 import MVC.model.Point;
@@ -33,6 +34,11 @@ class SpeculationBoardTest {
         assertNull(b.getOtherPieces()[6][3]);
     }
 
+    @Test
+    void thisPlayerMove() {
+        b.thisPlayerMove(new Attack(Point.create(4,4),Point.create(5,4),Piece.MINER,Piece.LIEUTENANT));
+        System.out.println(b.getBoard());
+    }
     @Test
     void getBoard() {
         Board b1 = b.getBoard();

@@ -1,10 +1,16 @@
 package MVC.Stratagies;
 
 import MVC.Stratagies.BoardComputerView.SpeculationBoard;
-import MVC.model.*;
+import MVC.model.Board;
+import MVC.model.Move;
+import MVC.model.Piece;
+import MVC.model.PossibleMoves;
 
 import static java.lang.Math.*;
 
+/**
+ * this class is the alpha beta strategy for choosing moves.
+ */
 public class AlphaBeta implements Strategy {
     private static final int maxDepth = 5;
     private String computerColor;
@@ -17,6 +23,11 @@ public class AlphaBeta implements Strategy {
         this.playerColor = Board.getOppositeColor(computerColor);
     }
 
+    /**
+     * this function is the first iteration of the loop.
+     * it is the computer's turn, and it is trying to find the best move to make
+     * @return the best move.
+     */
     @Override
     public Move chooseMove() {
         //this is the computer's turn
@@ -40,7 +51,7 @@ public class AlphaBeta implements Strategy {
             }
             alpha = max(MoveScore, alpha);
             board.undoMove(move.getP1(), move.getP2(), p1, p2, computerColor);
-            if(beta <= alpha)
+            if (beta <= alpha)
                 break;
         }
 
@@ -48,81 +59,103 @@ public class AlphaBeta implements Strategy {
     }
 
 
+    /**
+     * calculate the best move the computer can make.
+     * @param board the board
+     * @param Depth the max depth the program can go to
+     * @param alpha the maximum score
+     * @param beta the minimum score
+     * @return the score of the best move the computer can make
+     */
     private int computerTurn(Board board, int Depth, int alpha, int beta) {
         if (Depth == 0 || board.isGameOver())
             return score(board);
         //this is the computer's turn
         PossibleMoves moves = board.getMoves(computerColor);
         int bestScore = Integer.MIN_VALUE;
+        //this loop is here to see if there is a move that would probably end the game
         for (Move move : moves) {
             //find the maximum score of the moves.
             Piece p1 = board.getPiece(move.getP1());
             Piece p2 = board.getPiece(move.getP2());
-            if(p2 == Piece.FLAG || (p2 == Piece.BOMB && p1 == Piece.MINER)){
+            if (p2 == Piece.FLAG || (p2 == Piece.BOMB && p1 == Piece.MINER)) {
                 movePiece(board, move);
                 int MoveScore = playerTurn(board, Depth - 1, alpha, beta);
                 bestScore = max(MoveScore, bestScore);
                 alpha = max(MoveScore, alpha);
                 board.undoMove(move.getP1(), move.getP2(), p1, p2, computerColor);
-                if(beta <= alpha)
+                if (beta <= alpha)
                     break;
             }
         }
+        //loop throw the other moves
         for (Move move : moves) {
             //find the maximum score of the moves.
             Piece p1 = board.getPiece(move.getP1());
             Piece p2 = board.getPiece(move.getP2());
-            if(p2 != Piece.FLAG && !(p2 == Piece.BOMB && p1 == Piece.MINER)){
+            if (p2 != Piece.FLAG && !(p2 == Piece.BOMB && p1 == Piece.MINER)) {
                 movePiece(board, move);
                 int MoveScore = playerTurn(board, Depth - 1, alpha, beta);
                 bestScore = max(MoveScore, bestScore);
                 alpha = max(MoveScore, alpha);
                 board.undoMove(move.getP1(), move.getP2(), p1, p2, computerColor);
-                if(beta <= alpha)
+                if (beta <= alpha)
                     break;
             }
         }
         return bestScore;
     }
 
+    /**
+     * calculate the best move the opponent can make.
+     * @param board the board
+     * @param Depth the max depth the program can go to
+     * @param alpha the maximum score
+     * @param beta the minimum score
+     * @return the score of the best move the player can make
+     */
     private int playerTurn(Board board, int Depth, int alpha, int beta) {
         if (Depth == 0 || board.isGameOver())
             return score(board);
         //this is the player's turn
         PossibleMoves moves = board.getMoves(playerColor);
         int worstScore = Integer.MAX_VALUE;
-        //to find killer moves
+        //this loop is here to see if there is a move that would probably end the game
         for (Move move : moves) {
             //find the maximum score of the moves.
             Piece p1 = board.getPiece(move.getP1());
             Piece p2 = board.getPiece(move.getP2());
-            if(p2 == Piece.FLAG || (p2 == Piece.BOMB && p1 == Piece.MINER)){
+            if (p2 == Piece.FLAG || (p2 == Piece.BOMB && p1 == Piece.MINER)) {
                 movePiece(board, move);
                 int MoveScore = computerTurn(board, Depth - 1, alpha, beta);
                 worstScore = min(MoveScore, worstScore);
                 beta = min(MoveScore, beta);
                 board.undoMove(move.getP1(), move.getP2(), p1, p2, playerColor);
-                if(beta <= alpha)
+                if (beta <= alpha)
                     break;
             }
         }
+        //loop throw the other moves
         for (Move move : moves) {
             //find the maximum score of the moves.
             Piece p1 = board.getPiece(move.getP1());
             Piece p2 = board.getPiece(move.getP2());
-            if(p2 != Piece.FLAG && !(p2 == Piece.BOMB && p1 == Piece.MINER)){
+            if (p2 != Piece.FLAG && !(p2 == Piece.BOMB && p1 == Piece.MINER)) {
                 movePiece(board, move);
                 int MoveScore = computerTurn(board, Depth - 1, alpha, beta);
                 worstScore = min(MoveScore, worstScore);
                 board.undoMove(move.getP1(), move.getP2(), p1, p2, playerColor);
                 beta = min(MoveScore, beta);
-                if(beta <= alpha)
+                if (beta <= alpha)
                     break;
             }
         }
         return worstScore;
     }
 
+    /**
+     * move a piece
+     */
     private void movePiece(Board board, Move move) {
         board.moveTo(move.getP1(), move.getP2());
         board.updateMoves(move.getP1());
@@ -131,7 +164,8 @@ public class AlphaBeta implements Strategy {
 
 
     /**
-     * Get the score of the board.
+     * Get the score of the board. if the game is over then the score is -infinity or +infinity
+     * depending on whom won
      *
      * @return the score of the board
      */
@@ -149,26 +183,35 @@ public class AlphaBeta implements Strategy {
             int boardEvaluation = 0;
             Piece[][] computerPieces = board.getPieces(computerColor);
             Piece[][] opponentPieces = board.getPieces(playerColor);
-            boardEvaluation += EvaluateBoard(computerPieces, opponentPieces, board.getMoves(computerColor));
-            boardEvaluation -= EvaluateBoard(opponentPieces, computerPieces, board.getMoves(playerColor));
+
+            // I wanted the AI to consider the other side moves too, so
+            // I added his board score but subtracted the opponent's board score.
+            boardEvaluation += EvaluateBoard(computerPieces, opponentPieces);
+            boardEvaluation -= EvaluateBoard(opponentPieces, computerPieces);
             return boardEvaluation;
         }
         return 0;
     }
 
-    private int EvaluateBoard(Piece[][] attackingPieces, Piece[][] defendingPieces, PossibleMoves attackerMoves) {
+    /**
+     * I choose to evaluate the board by the distance from the flag
+     * @param attackingPieces the pieces of the attacker
+     * @param defendingPieces the pieces of the defender
+     * @return a number for the current position of the board
+     */
+    private int EvaluateBoard(Piece[][] attackingPieces, Piece[][] defendingPieces) {
         int boardEvaluation = 0;
         //find the other player's flag piece
         int flagRow = -1, flagCol = -1;
         for (int row = 0; row < defendingPieces.length; row++) {
             for (int col = 0; col < defendingPieces[row].length; col++) {
-                if(defendingPieces[row][col] == Piece.FLAG){
+                if (defendingPieces[row][col] == Piece.FLAG) {
                     flagRow = row;
                     flagCol = col;
                     break;
                 }
             }
-            if(flagRow != -1)
+            if (flagRow != -1)
                 break;
         }
         //then add points for every piece that is close to the flag proportionally to the distance squared
@@ -180,22 +223,6 @@ public class AlphaBeta implements Strategy {
                 }
             }
         }
-//        for (Move move : attackerMoves) {
-//            Piece defendingPiece = defendingPieces[move.getP2().getRow()][move.getP2().getCol()];
-//            Piece attackingPiece = attackingPieces[move.getP1().getRow()][move.getP1().getCol()];
-//            if(defendingPiece == null)
-//                continue;
-//            if (attackingPiece.Attack(defendingPiece) == attackingPiece) {
-//                if (defendingPiece == Piece.FLAG) {
-//                    boardEvaluation += 300;
-//                } else if (defendingPiece == Piece.SPY || defendingPiece == Piece.MARSHAL) {
-//                    boardEvaluation += 150;
-//                } else if (defendingPiece == Piece.MINER)
-//                    boardEvaluation += 60;
-//                else
-//                    boardEvaluation += defendingPiece.PieceNumber * 10;
-//            }
-//        }
         return boardEvaluation;
     }
 }

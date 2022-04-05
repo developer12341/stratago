@@ -2,6 +2,9 @@ package MVC.model;
 
 import java.util.BitSet;
 
+/**
+ * the board is not whole
+ */
 public class MapMask {
     private final int maxCol;
     private BitSet array;

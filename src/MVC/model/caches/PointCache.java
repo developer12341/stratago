@@ -2,7 +2,17 @@ package MVC.model.caches;
 
 import MVC.model.Point;
 
+/**
+ * this is a cache for the Point object. the reason I need a cache in here is that it is a
+ * very used object. if I won't have a caching system there will be a lot of garbage collection that slows
+ * the program down
+ */
 public class PointCache {
+
+    /**
+     * the reason an array is used and not a hashmap is that in this game there could be only so much points.
+     * it is wasteful to create a hashmap when the row and column can be the hash.
+     */
     private final Point[][] cache;
     private int maxRow;
     private int maxCol;
@@ -14,7 +24,7 @@ public class PointCache {
     }
 
     public boolean contains(int row, int col) {
-        if(!isValidPosition(row,col))
+        if (!isValidPosition(row, col))
             return false;
         return cache[row][col] != null;
     }
@@ -24,7 +34,7 @@ public class PointCache {
     }
 
     public void put(Point point) {
-        if(!isValidPosition(point.getRow(),point.getCol()))
+        if (!isValidPosition(point.getRow(), point.getCol()))
             throw new IndexOutOfBoundsException("the point " + point + " cannot be added to the cache");
         if (contains(point.getRow(), point.getCol()))
             throw new IllegalArgumentException("the point " + point + "exist already in the cache");

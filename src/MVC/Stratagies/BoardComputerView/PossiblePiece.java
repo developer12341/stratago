@@ -30,6 +30,14 @@ public class PossiblePiece implements Cloneable {
                 '}';
     }
 
+    /**
+     * this function calculates the expected piece.
+     * it takes the frequency of the piece, multiplies it by the probability of this piece being there
+     * and return the maximum value
+     * @param invisiblePieceCount the count of pieces not in the board at each rank
+     * @param invisiblePieceSum the amount of pieces not in the board
+     * @return the expected piece.
+     */
     public Piece getExpectedPiece(int[] invisiblePieceCount, int invisiblePieceSum) {
         if (piece != null) {
             return piece;

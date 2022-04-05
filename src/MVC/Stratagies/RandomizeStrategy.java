@@ -1,11 +1,7 @@
 package MVC.Stratagies;
 
-import MVC.model.*;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import MVC.model.Board;
+import MVC.model.Move;
 
 /**
  * this is a class for debugging purposes it is here to create a "dumb" bot in order to test the logic
@@ -23,6 +19,7 @@ public class RandomizeStrategy implements Strategy{
 
     @Override
     public Move chooseMove() {
+        //choose a random move
         return board.getMoves(color).chooseRandomMove();
     }
 
