@@ -6,8 +6,11 @@ import MVC.model.Point;
 
 import java.util.Arrays;
 
+import static MVC.model.Piece.BOMB;
+import static MVC.model.Piece.FLAG;
+
 public class SpeculationBoard {
-    private final Board board;
+    private final Board mainBoard;
     private PossiblePiece[][] otherPieces;
     private int[] invisiblePieceCount;
     private int[] visiblePieceCount;
@@ -15,13 +18,13 @@ public class SpeculationBoard {
     private String color;
 
     public SpeculationBoard(Board board, String color) {
-        this.board = board;
+        this.mainBoard = board;
         this.color = color;
 
-        invisiblePieceCount = new int[]{1, 8, 5, 4, 4, 4, 3, 2, 1, 1, 1, 6};
+        invisiblePieceCount = new int[]{1, 8, 5, 4, 4, 4, 3, 2, 1, 1, 6, 1};
         visiblePieceCount = new int[12];
 
-        otherPieces = new PossiblePiece[10][10];
+        otherPieces = new PossiblePiece[Board.size][Board.size];
         Piece[][][] defaultBoards = Board.defaultBoards;
         int[][][] amountOfAppearances = new int[defaultBoards[0].length][defaultBoards[0][0].length][12];
         for (Piece[][] defaultBoard : defaultBoards) {
@@ -76,7 +79,7 @@ public class SpeculationBoard {
         }
         otherPieces[p2.getRow()][p2.getCol()] = otherPieces[p1.getRow()][p1.getCol()];
         otherPieces[p1.getRow()][p1.getCol()] = null;
-        if (board.isFree(p2) || color.equals(board.getColor(p2))) {
+        if (mainBoard.isFree(p2) || color.equals(mainBoard.getColor(p2))) {
             //the piece in p1 attacked and there was a tie or the computer won.
             otherPieces[p2.getRow()][p2.getCol()] = null;
             invisiblePieceCount[attackingPiece.PieceNumber - 1]--;
@@ -89,7 +92,7 @@ public class SpeculationBoard {
                 invisiblePieceCount[Piece.SCOUT.PieceNumber - 1]--;
             else {
                 otherPieces[p2.getRow()][p2.getCol()].setProbability(Piece.BOMB, 0);
-                otherPieces[p2.getRow()][p2.getCol()].setProbability(Piece.FLAG, 0);
+                otherPieces[p2.getRow()][p2.getCol()].setProbability(FLAG, 0);
                 updateProbability(p1, p2);
             }
         }
@@ -101,28 +104,113 @@ public class SpeculationBoard {
 
     }
 
+
+    private int updateSums(Piece piece, int[] pieceCount, int pieceSum) {
+        if (pieceCount[piece.PieceNumber - 1] == 0)
+            throw new IllegalStateException("there are no " + piece + " available.");
+        pieceCount[piece.PieceNumber - 1]--;
+        pieceSum--;
+        return pieceSum;
+    }
+
     public Board getBoard() {
-        Board newBoard = board.clone(color);
+        Board newBoard = mainBoard.clone(color);
         int[] invisiblePieceCountCopy = invisiblePieceCount.clone();
         int invisiblePieceSum = Arrays.stream(invisiblePieceCountCopy).sum();
 
-        for (int row = 0; row < otherPieces.length; row++) {
+        //find out where the computer thinks the flag is
+        int flagRow = -1, flagCol = -1;
+        float maxProbability = 0;
+        for (int row = otherPieces.length - 1; row >= 0; row--) {
             for (int col = 0; col < otherPieces[row].length; col++) {
-                if (otherPieces[row][col] != null) {
-                    newBoard.setPiece(row,
-                            col,
-                            otherPieces[row][col].getExpectedPiece(invisiblePieceCountCopy, invisiblePieceSum),
-                            newBoard.getOppositeColor(color));
-                    invisiblePieceCountCopy[board.getPiece(Point.create(row,col)).PieceNumber - 1]--;
-                    invisiblePieceSum--;
+                if (otherPieces[row][col] != null && otherPieces[row][col].getProbability(FLAG) > maxProbability) {
+                    maxProbability = otherPieces[row][col].getProbability(FLAG);
+                    flagCol = col;
+                    flagRow = row;
                 }
-
             }
         }
+        if (flagCol == -1)
+            throw new IllegalStateException("the flag wasn't found, we need more data");
+        newBoard.setPiece(flagRow, flagCol, FLAG, Board.getOppositeColor(color));
+        invisiblePieceSum = updateSums(FLAG, invisiblePieceCountCopy, invisiblePieceSum);
+
+        //the flag is most likely surrounded with bombs
+        if (newBoard.isValid(flagRow - 1, flagCol)) {
+            newBoard.setPiece(flagRow - 1, flagCol, BOMB, Board.getOppositeColor(color));
+            invisiblePieceSum = updateSums(BOMB, invisiblePieceCountCopy, invisiblePieceSum);
+        }
+        if (newBoard.isValid(flagRow + 1, flagCol)) {
+            newBoard.setPiece(flagRow + 1, flagCol, BOMB, Board.getOppositeColor(color));
+            invisiblePieceSum = updateSums(BOMB, invisiblePieceCountCopy, invisiblePieceSum);
+        }
+        if (newBoard.isValid(flagRow, flagCol - 1)) {
+            newBoard.setPiece(flagRow, flagCol - 1, BOMB, Board.getOppositeColor(color));
+            invisiblePieceSum = updateSums(BOMB, invisiblePieceCountCopy, invisiblePieceSum);
+        }
+        if (newBoard.isValid(flagRow, flagCol + 1)) {
+            newBoard.setPiece(flagRow, flagCol + 1, BOMB, Board.getOppositeColor(color));
+            invisiblePieceSum = updateSums(BOMB, invisiblePieceCountCopy, invisiblePieceSum);
+        }
+
+
+        do {
+
+            int lowestFrequencyPiece = -1;
+            int minFrequency = Integer.MAX_VALUE;
+            for (int pieceNum = 0; pieceNum < invisiblePieceCountCopy.length; pieceNum++) {
+                if (invisiblePieceCountCopy[pieceNum] != 0 && invisiblePieceCountCopy[pieceNum] < minFrequency) {
+                    minFrequency = invisiblePieceCountCopy[pieceNum];
+                    lowestFrequencyPiece = pieceNum;
+                }
+            }
+            if (lowestFrequencyPiece == -1) {
+                break;
+            }
+            Piece pieceToSearch = Piece.fromInteger(lowestFrequencyPiece + 1);
+            int Row = -1, Col = -1;
+            maxProbability = 0;
+            for (int row = 0; row < otherPieces.length; row++) {
+                for (int col = 0; col < otherPieces[row].length; col++) {
+                    if (newBoard.isFree(row, col) && otherPieces[row][col] != null && otherPieces[row][col].getProbability(pieceToSearch) > maxProbability) {
+                        maxProbability = otherPieces[row][col].getProbability(pieceToSearch);
+                        Col = col;
+                        Row = row;
+                    }
+                }
+            }
+            if (Col == -1) {
+                for (int row = 0; row < otherPieces.length; row++) {
+                    for (int col = 0; col < otherPieces[row].length; col++) {
+                        if(newBoard.isFree(row,col) && otherPieces[row][col] == null){
+                            newBoard.setPiece(row,col,pieceToSearch, Board.getOppositeColor(color));
+                            invisiblePieceSum = updateSums(pieceToSearch, invisiblePieceCountCopy, invisiblePieceSum);
+                        }
+                    }
+                }
+            } else {
+                newBoard.setPiece(Row, Col, pieceToSearch, Board.getOppositeColor(color));
+                invisiblePieceSum = updateSums(pieceToSearch, invisiblePieceCountCopy, invisiblePieceSum);
+            }
+        } while (invisiblePieceSum > 0);
+
+
+//
+//        for (int row = 0; row < otherPieces.length; row++) {
+//            for (int col = 0; col < otherPieces[row].length; col++) {
+//                if (otherPieces[row][col] != null && mainBoard.isFree(row, col)) {
+//                    newBoard.setPiece(row,
+//                            col,
+//                            otherPieces[row][col].getExpectedPiece(invisiblePieceCountCopy, invisiblePieceSum),
+//                            newBoard.getOppositeColor(color));
+//                    invisiblePieceCountCopy[newBoard.getPiece(Point.create(row, col)).PieceNumber - 1]--;
+//                    invisiblePieceSum--;
+//                }
+//            }
+//        }
         newBoard.initPossibleMoves();
         newBoard.setGameOverFlag("red", true);
         newBoard.setGameOverFlag("blue", true);
-        System.out.println(board);
 
         return newBoard;
     }

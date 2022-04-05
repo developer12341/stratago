@@ -32,14 +32,7 @@ class SpeculationBoardTest {
     void getBoard() {
         Board b1 = b.getBoard();
         assertFalse(b1.isGameOver());
-        System.out.println(Arrays.deepToString(b1.getPieces("red")));
-        System.out.println(Arrays.deepToString(b1.getPieces("blue")));
-        assertFalse(b1.isGameOver());
-        assertEquals(Piece.FLAG, b1.getPiece(Point.create(3,6)));
-        b1.moveTo(Point.create(6,6),Point.create(3,6));
-        assertNotEquals(Piece.FLAG, b1.getPiece(Point.create(3,6)));
-        System.out.println(b1.getPiece(Point.create(3,6)));
-        assertTrue(b1.isGameOver());
+        System.out.println(b1);
 
     }
 }

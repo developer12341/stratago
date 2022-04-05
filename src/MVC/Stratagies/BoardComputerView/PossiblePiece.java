@@ -47,7 +47,7 @@ public class PossiblePiece implements Cloneable {
         }
 
         if (piece == -1)
-            return null;
+            return Piece.PLACEHOLDER;
 
         return Piece.fromInteger(piece + 1);
     }
@@ -62,5 +62,9 @@ public class PossiblePiece implements Cloneable {
 
     public void setProbability(Piece piece, int probability) {
         possiblePieces[piece.PieceNumber - 1] = probability;
+    }
+
+    public float getProbability(Piece piece) {
+        return possiblePieces[piece.PieceNumber - 1];
     }
 }
