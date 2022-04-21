@@ -1,5 +1,6 @@
 package MVC;
 
+import MVC.Stratagies.AlphaBeta;
 import MVC.Stratagies.BoardComputerView.SpeculationBoard;
 import MVC.Stratagies.Strategy;
 import MVC.Stratagies.mcts.MCTS;
@@ -26,7 +27,7 @@ public class ComputerPlayer {
         this.c = c;
         this.color = color;
         this.speculationBoard = new SpeculationBoard(c.getBoard(), color);
-        strategy = new MCTS(speculationBoard, color);
+        strategy = new AlphaBeta(speculationBoard, color);
     }
 
 
