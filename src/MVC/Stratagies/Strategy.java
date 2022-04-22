@@ -1,10 +1,12 @@
 package MVC.Stratagies;
 
 import MVC.model.Move;
-import MVC.model.PossibleMoves;
 
 public interface Strategy {
 
-    Move chooseMove(PossibleMoves possibleMoves);
-
+    /**
+     * this function calculate the base move to take.
+     * @return the best move.
+     */
+    Move chooseMove();
 }
