@@ -12,7 +12,7 @@ import static java.lang.Math.*;
  * this class is the alpha beta strategy for choosing moves.
  */
 public class AlphaBeta implements Strategy {
-    private static final int maxDepth = 5;
+    private static final int maxDepth = 6;
     private String computerColor;
     private SpeculationBoard speculationBoard;
     private String playerColor;
