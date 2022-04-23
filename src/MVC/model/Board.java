@@ -203,13 +203,6 @@ public class Board implements Cloneable {
     /**
      * this function update the moves at a point, and it updates the not correct moves at the points
      * in all directions
-     * |
-     * |
-     * |
-     * ------p--------
-     * |
-     * |
-     * |
      *
      * @param p a point in the board
      */
