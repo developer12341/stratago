@@ -21,9 +21,6 @@ public class Controller {
     private GameScene view;
 
 
-    /**
-     * @param model
-     */
     public Controller(Board model) {
         this.model = model;
     }
