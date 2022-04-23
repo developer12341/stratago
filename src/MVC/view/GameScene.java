@@ -8,6 +8,7 @@ import MVC.model.Point;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
@@ -285,16 +286,20 @@ public class GameScene {
      * @param playerColor the color of the human player
      */
     public void gameOver(String winner, String playerColor) {
-        if (winner.equals(playerColor)) {
-            System.out.println(playerColor + " you won!");
-        } else {
-            System.out.println(playerColor + " you lost:(");
-        }
         for (ViewPiece[] row : board) {
             for (ViewPiece button : row) {
                 if (button != null)
                     button.setDisable(true);
             }
         }
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("game over");
+        alert.setHeaderText("and the winner is...");
+        if (winner.equals(playerColor)) {
+            alert.setContentText(playerColor + ", you");
+        } else {
+            alert.setContentText(playerColor + "the computer:(");
+        }
+        alert.showAndWait();
     }
 }
