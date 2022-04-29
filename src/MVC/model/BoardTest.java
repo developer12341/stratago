@@ -86,7 +86,6 @@ class BoardTest {
         });
         b.getMoves("red").clear();
         b.getMoves("blue").clear();
-        b.initPossibleMoves();
     }
 
     @Test
@@ -132,8 +131,6 @@ class BoardTest {
         assertFalse(b.doesHaveMoves(Point.create(0, 0)));
         assertTrue(b.doesHaveMoves(Point.create(2, 1)));
         b.moveTo(Point.create(2, 1), Point.create(2, 2));
-        b.updateMoves(Point.create(2, 2));
-        b.updateMoves(Point.create(2, 1));
         assertTrue(b.doesHaveMoves(Point.create(2, 2)));
         assertFalse(b.doesHaveMoves(Point.create(2, 1)));
     }
@@ -202,7 +199,6 @@ class BoardTest {
                 {SERGEANT, SERGEANT, MAJOR, SPY, MAJOR, LIEUTENANT, BOMB, SERGEANT, LIEUTENANT, SERGEANT},
                 {MINER, SCOUT, MINER, SCOUT, SERGEANT, BOMB, FLAG, BOMB, MINER, MINER},
         });
-        b.initPossibleMoves();
         b.moveTo(Point.create(3,2),Point.create(4,2));
         System.out.println(b);
         System.out.println(b.getMoves("red"));
