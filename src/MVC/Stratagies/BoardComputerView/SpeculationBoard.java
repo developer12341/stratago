@@ -135,6 +135,18 @@ public class SpeculationBoard {
         //clone the mainBoard.
         Board newBoard = mainBoard.clone(color);
 
+        //copy the known pieces to newBoard.
+        for (int row = 0; row < otherPieces.length; row++) {
+            for (int col = 0; col < otherPieces[row].length; col++) {
+                if (otherPieces[row][col] != null) {
+                    if (otherPieces[row][col].isKnown())
+                        newBoard.setPiece(row, col, otherPieces[row][col].getPiece(), color);
+                }
+            }
+        }
+
+
+
         //clone the metadata
         int[] invisiblePieceCountCopy = invisiblePieceCount.clone();
         int invisiblePieceSum = Arrays.stream(invisiblePieceCountCopy).sum();
