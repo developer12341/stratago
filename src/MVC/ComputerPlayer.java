@@ -3,7 +3,6 @@ package MVC;
 import MVC.Stratagies.AlphaBeta;
 import MVC.Stratagies.BoardComputerView.SpeculationBoard;
 import MVC.Stratagies.Strategy;
-import MVC.Stratagies.mcts.MCTS;
 import MVC.controller.Controller;
 import MVC.model.Attack;
 import MVC.model.Move;
