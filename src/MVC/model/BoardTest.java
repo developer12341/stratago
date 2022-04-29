@@ -46,46 +46,13 @@ class BoardTest {
     @BeforeEach
     void setUp() {
         b = new Board();
-    }
-
-    void printBoards() {
-        System.out.println(Arrays.deepToString(b.getPieces("red")));
-        System.out.println(Arrays.deepToString(b.getPieces("blue")));
+        System.out.println(b);
     }
 
 
     @Test
     void updateMoves() {
 
-    }
-
-    void initPossibleMoves() {
-        b.setPieces("red", new Piece[][]{
-                {BOMB, null, null, null, null, null, null, null, null, null},
-                {Piece.MINER, null, null, null, null, null, null, null, null, null},
-                {Piece.FLAG, null, null, null, null, null, null, null, null, null},
-                {BOMB, null, null, null, null, null, null, null, null, null},
-                {BOMB, null, null, null, null, null, null, null, null, null},
-                {BOMB, null, null, null, null, null, null, null, null, null},
-                {BOMB, null, null, null, null, null, null, null, null, null},
-                {BOMB, null, null, null, null, null, null, null, null, null},
-                {BOMB, null, null, null, null, null, null, null, null, null},
-                {BOMB, null, null, null, null, null, null, null, null, null}
-        });
-        b.setPieces("blue", new Piece[][]{
-                {null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null},
-                {null, Piece.MINER, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null}
-        });
-        b.getMoves("red").clear();
-        b.getMoves("blue").clear();
     }
 
     @Test
@@ -95,17 +62,16 @@ class BoardTest {
 
     @Test
     void moveTo() {
-        System.out.println(b.moveTo(Point.create(2, 1), Point.create(2, 2)));
-        System.out.println(b.getPieces("blue")[2][2]);
-        System.out.println(b.getPieces("blue")[2][1]);
-        System.out.println(b.getMoves("red").toString());
-        System.out.println(b.getMoves("blue").toString());
+        assertNotNull(b.getPiece(Point.create(3, 1)));
+        assertNull(b.getPiece(Point.create(4, 1)));
+        System.out.println(b.moveTo(Point.create(3, 1), Point.create(4, 1)));
+        assertNull(b.getPiece(Point.create(3, 1)));
+        assertNotNull(b.getPiece(Point.create(4, 1)));
+        System.out.println(b);
     }
 
     @Test
     void getColor() {
-        System.out.println(Arrays.deepToString(b.getPieces("blue")));
-        System.out.println(b.getPieces("blue")[2][1]);
         System.out.println(b.getColor(Point.create(2, 1)));
         assertEquals(b.getColor(Point.create(2, 1)), "blue");
     }
@@ -116,14 +82,23 @@ class BoardTest {
 
     @Test
     void isPossibleMove() {
+        assertFalse(b.isPossibleMove(Point.create(0, 0), Point.create(0, 1)));
+        assertTrue(b.isPossibleMove(Point.create(3, 1), Point.create(4, 1)));
+        assertFalse(b.isPossibleMove(Point.create(3, 2), Point.create(4, 2)));
     }
 
     @Test
     void getMoves() {
+        assertNull(b.getMoves(Point.create(0, 0)));
+        assertNotNull(b.getMoves(Point.create(3, 1)));
+        assertNull(b.getMoves(Point.create(3, 2)));
+
     }
 
     @Test
     void testGetMoves() {
+        assertNotNull(b.getMoves("red"));
+        System.out.println(b.getMoves("red"));
     }
 
     @Test
@@ -204,5 +179,57 @@ class BoardTest {
         System.out.println(b.getMoves("red"));
         System.out.println(b.getMoves("blue"));
 
+    }
+
+    @Test
+    void getOppositeColor() {
+    }
+
+    @Test
+    void hasMoves() {
+    }
+
+    @Test
+    void setGameOverFlag() {
+    }
+
+    @Test
+    void isFree() {
+    }
+
+    @Test
+    void testIsFree() {
+    }
+
+    @Test
+    void getPiece() {
+    }
+
+    @Test
+    void setPiece() {
+    }
+
+    @Test
+    void isValid() {
+    }
+
+    @Test
+    void testClone1() {
+    }
+
+    @Test
+    void getWinner() {
+    }
+
+    @Test
+    void getPlayerTurn() {
+    }
+
+    @Test
+    void testToString() {
+    }
+
+    @Test
+    void setPieces() {
     }
 }
