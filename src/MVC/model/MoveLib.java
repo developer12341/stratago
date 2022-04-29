@@ -6,9 +6,6 @@ public class MoveLib {
     public static int pack(int RowFrom, int ColFrom, int RowTo, int ColTo) {
         return (RowFrom << 12) | (ColFrom << 8) | (RowTo << 4) | ColTo;
     }
-    public static int pack(int From, int To) {
-        return (From << 8) | To;
-    }
     public static int unpackRowFrom(int packed) {
         return packed >> 12;
     }
