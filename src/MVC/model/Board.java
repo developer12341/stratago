@@ -2,10 +2,7 @@ package MVC.model;
 
 import generator.BoardGenerator;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
 
 import static MVC.model.Piece.FLAG;
 import static MVC.model.Piece.SCOUT;
@@ -74,51 +71,16 @@ public class Board implements Cloneable {
      * @param color the color of the player
      * @return amount of Moves that the player has
      */
-    private int amountOfMoves(String color) {
-        if(color == null)
+    public int amountOfMoves(String color) {
+        if (color == null)
             return 0;
-        Piece[][] PlayerPieces = getPieces(color);
-        Piece[][] OppositePieces = getOppositePieces(color);
+        //get all the moves for a color
         int amount = 0;
-        for (int row = 0; row < Board.size; row++) {
-            for (int col = 0; col < Board.size; col++) {
-                if (PlayerPieces[row][col] != null) {
-                    if (PlayerPieces[row][col] == SCOUT) {
-                        //if the piece is a scout then it has the ability to move in every direction
-                        for (int newRow = row - 1; isValid(newRow, col) &&
-                                PlayerPieces[newRow][col] == null; newRow--) {
-                            amount++;
-                            if (OppositePieces[newRow][col] != null)
-                                break;
-                        }
-                        for (int newCol = col - 1; isValid(row, newCol) &&
-                                PlayerPieces[row][newCol] == null; newCol--) {
-                            amount++;
-                            if (OppositePieces[row][newCol] != null)
-                                break;
-                        }
-                        for (int newCol = col + 1; isValid(row, newCol) &&
-                                PlayerPieces[row][newCol] == null; newCol++) {
-                            amount++;
-                            if (OppositePieces[row][newCol] != null)
-                                break;
-                        }
-                        for (int newRow = row + 1; isValid(newRow, col) &&
-                                PlayerPieces[newRow][col] == null; newRow++) {
-                            amount++;
-                            if (OppositePieces[newRow][col] != null)
-                                break;
-                        }
-                    } else {
-                        if (isValid(row - 1, col) && PlayerPieces[row - 1][col] == null)
-                            amount++;
-                        if (isValid(row + 1, col) && PlayerPieces[row + 1][col] == null)
-                            amount++;
-                        if (isValid(row, col - 1) && PlayerPieces[row][col - 1] == null)
-                            amount++;
-                        if (isValid(row, col + 1) && PlayerPieces[row][col + 1] == null)
-                            amount++;
-                    }
+        Piece[][] pieces = getPieces(color);
+        for (int row = 0; row < pieces.length; row++) {
+            for (int col = 0; col < pieces[row].length; col++) {
+                if (pieces[row][col] != null) {
+                    amount += getAmountOfMoves(row, col);
                 }
             }
         }
@@ -166,11 +128,7 @@ public class Board implements Cloneable {
     public String getColor(Point p) {
         if (p == null)
             return null;
-        if (redPieces[p.getRow()][p.getCol()] != null)
-            return "red";
-        else if (bluePieces[p.getRow()][p.getCol()] != null)
-            return "blue";
-        return null;
+        return getColor(p.getRow(), p.getCol());
     }
 
     private void switchTurn() {
@@ -214,6 +172,39 @@ public class Board implements Cloneable {
         pieces[p2.getRow()][p2.getCol()] = pieces[p1.getRow()][p1.getCol()];
         pieces[p1.getRow()][p1.getCol()] = temp;
         return true;
+    }
+
+    public void OptimizedMoveTo(int move) {
+        String p1Color = getColor(MoveLib.unpackRowFrom(move), MoveLib.unpackColFrom(move));
+        String p2Color = getColor(MoveLib.unpackRowTo(move), MoveLib.unpackColTo(move));
+        if (isFree(MoveLib.unpackRowFrom(move), MoveLib.unpackColFrom(move)))
+            throw new IllegalArgumentException(MoveLib.getFrom(move) + " doesn't have a piece");
+        if (Objects.equals(p1Color, p2Color)) {
+            System.out.println("same color: " + p1Color);
+            throw new IllegalArgumentException("the piece you are trying to move has the same color...");
+        }
+        if (p2Color == null)
+            p2Color = p1Color;
+        Piece[][] player1Pieces = getPieces(p1Color);
+        Piece[][] player2Pieces = getPieces(p2Color);
+
+        if (player2Pieces[MoveLib.unpackRowTo(move)][MoveLib.unpackColTo(move)] == FLAG)
+            setGameOverFlag(p2Color, false);
+
+
+        Piece winner = player1Pieces[MoveLib.unpackRowFrom(move)][MoveLib.unpackColFrom(move)].Attack(
+                player2Pieces[MoveLib.unpackRowTo(move)][MoveLib.unpackColTo(move)]);
+        switchTurn();
+        if (winner == null) {
+            player1Pieces[MoveLib.unpackRowFrom(move)][MoveLib.unpackColFrom(move)] = null;
+            player2Pieces[MoveLib.unpackRowTo(move)][MoveLib.unpackColTo(move)] = null;
+        } else if (winner == player1Pieces[MoveLib.unpackRowFrom(move)][MoveLib.unpackColFrom(move)]) {
+            player1Pieces[MoveLib.unpackRowFrom(move)][MoveLib.unpackColFrom(move)] = null;
+            player2Pieces[MoveLib.unpackRowTo(move)][MoveLib.unpackColTo(move)] = null;
+            player1Pieces[MoveLib.unpackRowTo(move)][MoveLib.unpackColTo(move)] = winner;
+        } else {
+            player1Pieces[MoveLib.unpackRowFrom(move)][MoveLib.unpackColFrom(move)] = null;
+        }
     }
 
     /**
@@ -282,19 +273,23 @@ public class Board implements Cloneable {
             return false;
         if (!getPiece(p1).isMovable())
             return false;
+
+        //if the points are at a diagonal then it is not a valid move
+        if (!(p1.getRow() == p2.getRow() || p1.getCol() == p2.getCol()))
+            return false;
         if (p1.distance(p2) > 1 && getPiece(p1) != SCOUT)
             return false;
         if (getPiece(p1) == SCOUT) {
             Piece[][] playerPieces = getPieces(getColor(p1));
             if (p1.getCol() == p2.getCol()) {
-                int direction = Integer.signum(p1.getRow() - p2.getRow());
+                int direction = Integer.signum(p2.getRow() - p1.getRow());
                 for (int newRow = p1.getRow() + direction; newRow != p2.getRow() + direction; newRow += direction) {
                     if (playerPieces[newRow][p1.getCol()] != null)
                         return false;
                 }
                 return true;
             } else if (p1.getRow() == p2.getRow()) {
-                int direction = Integer.signum(p1.getCol() - p2.getCol());
+                int direction = Integer.signum(p2.getCol() - p1.getCol());
                 for (int newCol = p1.getCol() + direction; newCol != p2.getCol() + direction; newCol += direction) {
                     if (playerPieces[p1.getRow()][newCol] != null)
                         return false;
@@ -309,6 +304,57 @@ public class Board implements Cloneable {
         }
     }
 
+    public int getAmountOfMoves(int row, int col) {
+        //get the amount of possible moves
+        if(!isValid(row, col))
+            return 0;
+        if(isFree(row, col))
+            return 0;
+        if(!getPiece(row, col).isMovable())
+            return 0;
+        int amount = 0;
+        Piece[][] PlayerPieces = getPieces(getColor(row, col));
+        if(getPiece(row, col) == SCOUT){
+            //get the opposite color pieces
+            Piece[][] OppositePieces = getPieces(getOppositeColor(getColor(row, col)));
+            //if the piece is a scout then it has the ability to move in every direction
+            for (int newRow = row - 1; isValid(newRow, col) &&
+                    PlayerPieces[newRow][col] == null; newRow--) {
+                amount++;
+                if (OppositePieces[newRow][col] != null)
+                    break;
+            }
+            for (int newCol = col - 1; isValid(row, newCol) &&
+                    PlayerPieces[row][newCol] == null; newCol--) {
+                amount++;
+                if (OppositePieces[row][newCol] != null)
+                    break;
+            }
+            for (int newCol = col + 1; isValid(row, newCol) &&
+                    PlayerPieces[row][newCol] == null; newCol++) {
+                amount++;
+                if (OppositePieces[row][newCol] != null)
+                    break;
+            }
+            for (int newRow = row + 1; isValid(newRow, col) &&
+                    PlayerPieces[newRow][col] == null; newRow++) {
+                amount++;
+                if (OppositePieces[newRow][col] != null)
+                    break;
+            }
+        }
+        else{
+            if (isValid(row - 1, col) && PlayerPieces[row - 1][col] == null)
+                amount++;
+            if (isValid(row + 1, col) && PlayerPieces[row + 1][col] == null)
+                amount++;
+            if (isValid(row, col - 1) && PlayerPieces[row][col - 1] == null)
+                amount++;
+            if (isValid(row, col + 1) && PlayerPieces[row][col + 1] == null)
+                amount++;
+        }
+        return amount;
+    }
 
     public List<Point> getMoves(Point p) {
         if (!isValid(p))
@@ -317,7 +363,7 @@ public class Board implements Cloneable {
             return null;
         String color = getColor(p);
         Piece[][] PlayerPieces = getPieces(color);
-        if(isSurrounded(p,PlayerPieces))
+        if (isSurrounded(p, PlayerPieces))
             return null;
         Piece[][] OppositePieces = getOppositePieces(color);
         Piece piece = PlayerPieces[p.getRow()][p.getCol()];
@@ -365,7 +411,7 @@ public class Board implements Cloneable {
     }
 
     /**
-     * @param p the point to check
+     * @param p      the point to check
      * @param pieces the pieces of the player
      * @return true if the piece is surrounded by the pieces in the variable pieces
      */
@@ -394,13 +440,13 @@ public class Board implements Cloneable {
             return false;
         String color = getColor(p);
         Piece[][] playerPieces = getPieces(color);
-        if (isValid(p.getRow() - 1, p.getCol()) && playerPieces[p.getRow() - 1][p.getCol()] != null)
+        if (isValid(p.getRow() - 1, p.getCol()) && playerPieces[p.getRow() - 1][p.getCol()] == null)
             return true;
-        if (isValid(p.getRow() + 1, p.getCol()) && playerPieces[p.getRow() + 1][p.getCol()] != null)
+        if (isValid(p.getRow() + 1, p.getCol()) && playerPieces[p.getRow() + 1][p.getCol()] == null)
             return true;
-        if (isValid(p.getRow(), p.getCol() - 1) && playerPieces[p.getRow()][p.getCol() - 1] != null)
+        if (isValid(p.getRow(), p.getCol() - 1) && playerPieces[p.getRow()][p.getCol() - 1] == null)
             return true;
-        if (isValid(p.getRow(), p.getCol() + 1) && playerPieces[p.getRow()][p.getCol() + 1] != null)
+        if (isValid(p.getRow(), p.getCol() + 1) && playerPieces[p.getRow()][p.getCol() + 1] == null)
             return true;
         return false;
     }
@@ -413,8 +459,68 @@ public class Board implements Cloneable {
         return isValid(row, col) && bluePieces[row][col] == null && redPieces[row][col] == null;
     }
 
+    public int[] getOptimizedMoves(String color) {
+        //get all the moves for a color
+        int[] moves = new int[amountOfMoves(color)];
+        int index = 0;
+        Piece[][] pieces = getPieces(color);
+        for (int row = 0; row < pieces.length; row++) {
+            for (int col = 0; col < pieces[row].length; col++) {
+                if (!isValid(row, col))
+                    continue;
+                if (pieces[row][col] != null) {
+                    Piece[][] PlayerPieces = getPieces(color);
+                    Piece[][] OppositePieces = getOppositePieces(color);
+                    if (!pieces[row][col].isMovable())
+                        continue;
+                    if (pieces[row][col] == SCOUT) {
+                        //if the piece is a scout then it has the ability to move in every direction
+                        for (int newRow = row - 1; isValid(newRow, col) &&
+                                PlayerPieces[newRow][col] == null; newRow--) {
+                            moves[index++] = MoveLib.pack(row, col, newRow, col);
+                            if (OppositePieces[newRow][col] != null)
+                                break;
+                        }
+                        for (int newCol = col - 1; isValid(row, newCol) &&
+                                PlayerPieces[row][newCol] == null; newCol--) {
+                            moves[index++] = MoveLib.pack(row, col, row, newCol);
+                            if (OppositePieces[row][newCol] != null)
+                                break;
+                        }
+                        for (int newCol = col + 1; isValid(row, newCol) &&
+                                PlayerPieces[row][newCol] == null; newCol++) {
+                            moves[index++] = MoveLib.pack(row, col, row, newCol);
+                            if (OppositePieces[row][newCol] != null)
+                                break;
+                        }
+                        for (int newRow = row + 1; isValid(newRow, col) &&
+                                PlayerPieces[newRow][col] == null; newRow++) {
+                            moves[index++] = MoveLib.pack(row, col, newRow, col);
+                            if (OppositePieces[newRow][col] != null)
+                                break;
+                        }
+                    } else {
+                        if (isValid(row - 1, col) && PlayerPieces[row - 1][col] == null)
+                            moves[index++] = MoveLib.pack(row, col, row - 1, col);
+                        if (isValid(row + 1, col) && PlayerPieces[row + 1][col] == null)
+                            moves[index++] = MoveLib.pack(row, col, row + 1, col);
+                        if (isValid(row, col - 1) && PlayerPieces[row][col - 1] == null)
+                            moves[index++] = MoveLib.pack(row, col, row, col - 1);
+                        if (isValid(row, col + 1) && PlayerPieces[row][col + 1] == null)
+                            moves[index++] = MoveLib.pack(row, col, row, col + 1);
+                    }
+                }
+            }
+        }
+        if(index != moves.length) {
+            System.out.println(this);
+            System.out.println("blue moves: " + Arrays.toString(moves));
+            throw new RuntimeException("index != moves.length");
+        }
+        return moves;
+    }
 
-    public List<Move> getMoves(String color){
+    public List<Move> getMoves(String color) {
         //get all the moves for a color
         List<Move> moves = new ArrayList<>();
         Piece[][] pieces = getPieces(color);
@@ -422,7 +528,7 @@ public class Board implements Cloneable {
             for (int j = 0; j < pieces[i].length; j++) {
                 if (pieces[i][j] != null) {
                     List<Point> points = getMoves(Point.create(i, j));
-                    if(points != null){
+                    if (points != null) {
                         //convert the points to moves
                         for (Point p : points) {
                             moves.add(Move.create(Point.create(i, j), p));
@@ -443,6 +549,24 @@ public class Board implements Cloneable {
         if (isFree(p))
             return null;
         return getPieces(getColor(p))[p.getRow()][p.getCol()];
+    }
+
+    public Piece getPiece(int row, int col) {
+        if (!isValid(row, col))
+            throw new IndexOutOfBoundsException("point " + row + "," + col + " is out of bounds");
+        if (isFree(row, col))
+            return null;
+        return getPieces(getColor(row, col))[row][col];
+    }
+
+    private String getColor(int row, int col) {
+        if (!isValid(row, col))
+            throw new IndexOutOfBoundsException("point (" + row + ", " + col + ") is out of bounds");
+        if (redPieces[row][col] != null)
+            return "red";
+        else if (bluePieces[row][col] != null)
+            return "blue";
+        return null;
     }
 
     private boolean isValid(Point p) {
@@ -469,13 +593,15 @@ public class Board implements Cloneable {
             Board clone = (Board) super.clone();
             if ("red".equals(color)) {
                 clone.redPieces = redPieces.clone();
-                clone.bluePieces = new Piece[Board.size][Board.size];
                 clone.redFlagInBoard = true;
+
+                clone.bluePieces = new Piece[Board.size][Board.size];
                 clone.blueFlagInBoard = false;
             } else if ("blue".equals(color)) {
                 clone.bluePieces = bluePieces.clone();
-                clone.redPieces = new Piece[Board.size][Board.size];
                 clone.blueFlagInBoard = true;
+
+                clone.redPieces = new Piece[Board.size][Board.size];
                 clone.redFlagInBoard = false;
             }
             return clone;
@@ -499,6 +625,20 @@ public class Board implements Cloneable {
         setPiece(point2, defendingPiece, getOppositeColor(color));
         switchTurn();
     }
+
+    /**
+     * @param attackingPiece the attacking piece
+     * @param defendingPiece the defending piece
+     * @param color          the color of the attacker.
+     */
+    public void OptimizedUndoMove(int move, Piece attackingPiece, Piece defendingPiece, String color) {
+        setPiece(MoveLib.unpackRowFrom(move), MoveLib.unpackColFrom(move), attackingPiece, color);
+        setPiece(MoveLib.unpackRowFrom(move), MoveLib.unpackColFrom(move), null, getOppositeColor(color));
+        setPiece(MoveLib.unpackRowTo(move), MoveLib.unpackColTo(move), null, color);
+        setPiece(MoveLib.unpackRowTo(move), MoveLib.unpackColTo(move), defendingPiece, getOppositeColor(color));
+        switchTurn();
+    }
+
 
     private void setPiece(Point p, Piece Piece, String color) {
         setPiece(p.getRow(), p.getCol(), Piece, color);
