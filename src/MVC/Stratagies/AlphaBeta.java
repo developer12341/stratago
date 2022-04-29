@@ -4,7 +4,8 @@ import MVC.Stratagies.BoardComputerView.SpeculationBoard;
 import MVC.model.Board;
 import MVC.model.Move;
 import MVC.model.Piece;
-import MVC.model.PossibleMoves;
+
+import java.util.List;
 
 import static java.lang.Math.*;
 
@@ -34,7 +35,7 @@ public class AlphaBeta implements Strategy {
         Board board = speculationBoard.getBoard();
         if (board.isGameOver())
             throw new IllegalStateException("the game cant quite be over...");
-        PossibleMoves moves = board.getMoves(computerColor);
+        List<Move> moves = board.getMoves(computerColor);
         Move bestMove = null;
         int bestScore = Integer.MIN_VALUE;
         int alpha = Integer.MIN_VALUE;
@@ -43,7 +44,7 @@ public class AlphaBeta implements Strategy {
             //find the maximum score of the moves.
             Piece p1 = board.getPiece(move.getP1());
             Piece p2 = board.getPiece(move.getP2());
-            movePiece(board, move);
+            board.moveTo(move.getP1(), move.getP2());
             int MoveScore = playerTurn(board, maxDepth - 1, alpha, beta);
             if (MoveScore >= bestScore) {
                 bestScore = MoveScore;
@@ -71,7 +72,7 @@ public class AlphaBeta implements Strategy {
         if (Depth == 0 || board.isGameOver())
             return score(board);
         //this is the computer's turn
-        PossibleMoves moves = board.getMoves(computerColor);
+        List<Move> moves = board.getMoves(computerColor);
         int bestScore = Integer.MIN_VALUE;
         //this loop is here to see if there is a move that would probably end the game
         for (Move move : moves) {
@@ -79,7 +80,7 @@ public class AlphaBeta implements Strategy {
             Piece p1 = board.getPiece(move.getP1());
             Piece p2 = board.getPiece(move.getP2());
             if (p2 == Piece.FLAG || (p2 == Piece.BOMB && p1 == Piece.MINER)) {
-                movePiece(board, move);
+                board.moveTo(move.getP1(), move.getP2());
                 int MoveScore = playerTurn(board, Depth - 1, alpha, beta);
                 bestScore = max(MoveScore, bestScore);
                 alpha = max(MoveScore, alpha);
@@ -94,7 +95,7 @@ public class AlphaBeta implements Strategy {
             Piece p1 = board.getPiece(move.getP1());
             Piece p2 = board.getPiece(move.getP2());
             if (p2 != Piece.FLAG && !(p2 == Piece.BOMB && p1 == Piece.MINER)) {
-                movePiece(board, move);
+                board.moveTo(move.getP1(), move.getP2());
                 int MoveScore = playerTurn(board, Depth - 1, alpha, beta);
                 bestScore = max(MoveScore, bestScore);
                 alpha = max(MoveScore, alpha);
@@ -118,7 +119,7 @@ public class AlphaBeta implements Strategy {
         if (Depth == 0 || board.isGameOver())
             return score(board);
         //this is the player's turn
-        PossibleMoves moves = board.getMoves(playerColor);
+        List<Move> moves = board.getMoves(playerColor);
         int worstScore = Integer.MAX_VALUE;
         //this loop is here to see if there is a move that would probably end the game
         for (Move move : moves) {
@@ -126,7 +127,7 @@ public class AlphaBeta implements Strategy {
             Piece p1 = board.getPiece(move.getP1());
             Piece p2 = board.getPiece(move.getP2());
             if (p2 == Piece.FLAG || (p2 == Piece.BOMB && p1 == Piece.MINER)) {
-                movePiece(board, move);
+                board.moveTo(move.getP1(), move.getP2());
                 int MoveScore = computerTurn(board, Depth - 1, alpha, beta);
                 worstScore = min(MoveScore, worstScore);
                 beta = min(MoveScore, beta);
@@ -141,7 +142,7 @@ public class AlphaBeta implements Strategy {
             Piece p1 = board.getPiece(move.getP1());
             Piece p2 = board.getPiece(move.getP2());
             if (p2 != Piece.FLAG && !(p2 == Piece.BOMB && p1 == Piece.MINER)) {
-                movePiece(board, move);
+                board.moveTo(move.getP1(), move.getP2());
                 int MoveScore = computerTurn(board, Depth - 1, alpha, beta);
                 worstScore = min(MoveScore, worstScore);
                 board.undoMove(move.getP1(), move.getP2(), p1, p2, playerColor);
@@ -152,16 +153,6 @@ public class AlphaBeta implements Strategy {
         }
         return worstScore;
     }
-
-    /**
-     * move a piece
-     */
-    private void movePiece(Board board, Move move) {
-        board.moveTo(move.getP1(), move.getP2());
-        board.updateMoves(move.getP1());
-        board.updateMoves(move.getP2());
-    }
-
 
     /**
      * Get the score of the board. if the game is over then the score is -infinity or +infinity
