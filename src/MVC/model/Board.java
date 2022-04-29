@@ -315,14 +315,16 @@ public class Board implements Cloneable {
             throw new IllegalArgumentException("the point is out of bounds");
         if (isFree(p))
             return null;
-        ArrayList<Point> moves = new ArrayList<>();
         String color = getColor(p);
         Piece[][] PlayerPieces = getPieces(color);
+        if(isSurrounded(p,PlayerPieces))
+            return null;
         Piece[][] OppositePieces = getOppositePieces(color);
         Piece piece = PlayerPieces[p.getRow()][p.getCol()];
-        int col = p.getCol(), row = p.getRow();
         if (!piece.isMovable())
             return null;
+        int col = p.getCol(), row = p.getRow();
+        ArrayList<Point> moves = new ArrayList<>();
         if (piece == SCOUT) {
             //if the piece is a scout then it has the ability to move in every direction
             for (int newRow = row - 1; isValid(newRow, col) &&
@@ -350,8 +352,8 @@ public class Board implements Cloneable {
                     break;
             }
         } else {
-            if (isValid(p.getRow() - 1, p.getCol()) && PlayerPieces[p.getRow() - 1][p.getCol()] == null)
-                moves.add(Point.create(p.getRow() - 1, p.getCol()));
+            if (isValid(row - 1, col) && PlayerPieces[row - 1][col] == null)
+                moves.add(Point.create(p.getRow() - 1, col));
             if (isValid(row + 1, col) && PlayerPieces[row + 1][col] == null)
                 moves.add(Point.create(row + 1, col));
             if (isValid(row, col - 1) && PlayerPieces[row][col - 1] == null)
@@ -360,6 +362,24 @@ public class Board implements Cloneable {
                 moves.add(Point.create(row, col + 1));
         }
         return moves;
+    }
+
+    /**
+     * @param p the point to check
+     * @param pieces the pieces of the player
+     * @return true if the piece is surrounded by the pieces in the variable pieces
+     */
+    private boolean isSurrounded(Point p, Piece[][] pieces) {
+        int row = p.getRow(), col = p.getCol();
+        if (isValid(row - 1, col) && pieces[row - 1][col] == null)
+            return false;
+        if (isValid(row + 1, col) && pieces[row + 1][col] == null)
+            return false;
+        if (isValid(row, col - 1) && pieces[row][col - 1] == null)
+            return false;
+        if (isValid(row, col + 1) && pieces[row][col + 1] == null)
+            return false;
+        return true;
     }
 
     /**
@@ -402,9 +422,11 @@ public class Board implements Cloneable {
             for (int j = 0; j < pieces[i].length; j++) {
                 if (pieces[i][j] != null) {
                     List<Point> points = getMoves(Point.create(i, j));
-                    //convert the points to moves
-                    for (Point p : points) {
-                        moves.add(Move.create(Point.create(i, j), p));
+                    if(points != null){
+                        //convert the points to moves
+                        for (Point p : points) {
+                            moves.add(Move.create(Point.create(i, j), p));
+                        }
                     }
                 }
             }
