@@ -113,7 +113,8 @@ public class Controller {
         String PieceColor = model.getColor(PieceLocation);
         if (!Objects.equals(PieceColor, playerColor))
             return;
-
+        if(view.isSetup())
+            view.setSelected(view.getLocation(actionEvent));
         view.setSelected(PieceLocation, model.getMoves(PieceLocation));
     }
 
