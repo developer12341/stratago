@@ -6,7 +6,7 @@ import java.util.BitSet;
  * the board is not whole and has holes in the middle, this is a class to represent the places that are
  * in the board.
  */
-class MapMask {
+public class MapMask {
     private final int maxCol;
     private BitSet array;
 
