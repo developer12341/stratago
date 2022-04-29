@@ -21,9 +21,6 @@ public class Controller {
     private GameScene view;
 
 
-    /**
-     * @param model
-     */
     public Controller(Board model) {
         this.model = model;
     }
@@ -100,8 +97,6 @@ public class Controller {
         else
             view.moveImageTo(p1, p2);
 
-        model.updateMoves(p2);
-        model.updateMoves(p1);
         if (defendingPiece != null)
             return new Attack(p1, p2, attackingPiece, defendingPiece);
         else
@@ -170,7 +165,6 @@ public class Controller {
      * initialize the possible moves of both players and start the game
      */
     public void startGame() {
-        model.initPossibleMoves();
         view.setSetup(false);
     }
 
