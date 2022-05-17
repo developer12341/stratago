@@ -79,4 +79,8 @@ public class PossiblePiece implements Cloneable {
     public Piece getPiece() {
         return piece;
     }
+
+    public boolean isKnown() {
+        return piece != null;
+    }
 }

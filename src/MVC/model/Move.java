@@ -5,7 +5,7 @@ import MVC.model.caches.MoveCache;
 import java.util.Objects;
 
 /**
- * this class is meant to represent a move on the board.
+ * this class represent a move on the board.
  * it is an immutable object, if you need to change one of the fields a new object will
  * be created
  */
@@ -62,5 +62,9 @@ public class Move {
                 p1 +
                 "-> " + p2 +
                 '}';
+    }
+
+    public int getDistance() {
+        return p1.distance(p2);
     }
 }

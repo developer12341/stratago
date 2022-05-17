@@ -150,10 +150,15 @@ public class GameScene {
      */
     public void setSelected(Point p, List<Point> points) {
 
-        selected = board[p.getRow()][p.getCol()];
+        setSelected(p);
         if (points == null)
             return;
         highlightMoves(p, points);
+    }
+
+    public void setSelected(Point p) {
+
+        selected = board[p.getRow()][p.getCol()];
     }
 
     /**

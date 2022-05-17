@@ -73,6 +73,10 @@ public class Point {
      * @return the "taxicab geometry" distance from p to this point.
      */
     public int distance(Point p) {
-        return abs(row - p.getRow()) + abs(col - p.getCol());
+        return distance(p.getRow(), p.getCol());
+    }
+
+    public int distance(int row, int col) {
+        return abs(this.row - row) + abs(this.col - col);
     }
 }

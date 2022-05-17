@@ -4,6 +4,7 @@ import MVC.ComputerPlayer;
 import MVC.controller.Controller;
 import MVC.model.Attack;
 import MVC.model.Board;
+import MVC.model.PlayerID;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 
@@ -12,7 +13,7 @@ import javafx.event.EventHandler;
  * it is the gateway the user has to interact with the program.
  */
 public class HumanPlayer implements EventHandler<ActionEvent> {
-
+    private boolean isRunning;
     private GameScene view;
     private Controller controller;
     private String playerColor;
@@ -30,6 +31,7 @@ public class HumanPlayer implements EventHandler<ActionEvent> {
         this.controller = controller;
         this.playerColor = playerColor;
         this.otherPlayer = otherPlayer;
+        isRunning = false;
 
     }
 
@@ -41,7 +43,16 @@ public class HumanPlayer implements EventHandler<ActionEvent> {
      * @param actionEvent the click event
      */
     @Override
-    public synchronized void handle(ActionEvent actionEvent) {
+    public void handle(ActionEvent actionEvent) {
+        if(isRunning) {
+            return;
+        }
+        isRunning = true;
+        onButtonClicked(actionEvent);
+        isRunning = false;
+    }
+
+    private void onButtonClicked(ActionEvent actionEvent) {
         if (view.isSetup()) {
             //if the game is in setup mode.
             if (view.isStartGameButton(actionEvent)) {
@@ -74,30 +85,33 @@ public class HumanPlayer implements EventHandler<ActionEvent> {
                 //move the piece in the selected place to the current button
                 Attack attack = controller.moveSelectedTo(actionEvent);
 
-                //if the user attacked a piece
-                if (attack.getDefendingPiece() != null)
-                    //render the image if It hasn't lost
-                    controller.renderImage(attack.getMove().getP2(), attack.getDefendingPiece(), Board.getOppositeColor(playerColor));
+//                //if the user attacked a piece
+//                if(attack.getAttackingPiece() != null) {
+//                    if (controller.isColor(attack.getMove().getP2(), PlayerID.ComputerPlayer))
+//                        //render the image if It hasn't lost
+//                        controller.renderImage(attack.getMove().getP2(), attack.getDefendingPiece(), PlayerID.ComputerPlayer);
+//                }
 
 
                 if (controller.isGameOver()) {
                     //if the game ended then end the game
-                    controller.gameOver(playerColor);
+                    controller.gameOver();
                     return;
                 }
 
                 //after the user made it move the computer's turn arrived
                 attack = otherPlayer.movePiece(attack);
-                if (attack.getDefendingPiece() != null) {
-                    //if the computer attacked a piece
-                    otherPlayer.moveComputerPiece(attack); // give the computer player this information
-                    controller.renderImage(attack.getMove().getP2(),
-                            attack.getAttackingPiece(),
-                            Board.getOppositeColor(playerColor));//render the defending piece.
-                }
+                otherPlayer.moveComputerPiece(attack); // give the computer player this information
+
+//                if (controller.isColor(attack.getMove().getP2(), PlayerID.ComputerPlayer)) {
+//                    //if the computer attacked a piece
+//                    controller.renderImage(attack.getMove().getP2(),
+//                            attack.getAttackingPiece(),
+//                            Board.getOppositeColor(playerColor));//render the defending piece.
+//                }
 
                 if (controller.isGameOver()) {
-                    controller.gameOver(playerColor);
+                    controller.gameOver();
                 }
             } else {
                 //if the user didn't select a button yet

@@ -1,9 +1,9 @@
 package MVC;
 
+import MVC.Stratagies.ABOptimized;
 import MVC.Stratagies.AlphaBeta;
 import MVC.Stratagies.BoardComputerView.SpeculationBoard;
 import MVC.Stratagies.Strategy;
-import MVC.Stratagies.mcts.MCTS;
 import MVC.controller.Controller;
 import MVC.model.Attack;
 import MVC.model.Move;
@@ -27,7 +27,7 @@ public class ComputerPlayer {
         this.c = c;
         this.color = color;
         this.speculationBoard = new SpeculationBoard(c.getBoard(), color);
-        strategy = new AlphaBeta(speculationBoard, color);
+        strategy = new ABOptimized(speculationBoard, color);
     }
 
 
@@ -37,7 +37,7 @@ public class ComputerPlayer {
      * @return the attack the computer made on the human player
      */
     public Attack movePiece(Attack attack) {
-        speculationBoard.otherPlayerMove(attack.getMove().getP1(), attack.getMove().getP2(), attack.getAttackingPiece());
+        speculationBoard.otherPlayerMove(attack);
         Move m = strategy.chooseMove();
         return c.movePiece(m.getP1(), m.getP2());
     }
