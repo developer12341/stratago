@@ -28,7 +28,7 @@ class SpeculationBoardTest {
     @Test
     void otherPlayerMove() {
         PossiblePiece p1 = b.getOtherPieces()[6][3];
-        b.otherPlayerMove(Point.create(6,3),Point.create(5,3), null);
+//        b.otherPlayerMove(Point.create(6,3),Point.create(5,3), null);
 
         assertEquals(p1, b.getOtherPieces()[5][3]);
         assertNull(b.getOtherPieces()[6][3]);

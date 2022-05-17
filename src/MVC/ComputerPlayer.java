@@ -37,7 +37,7 @@ public class ComputerPlayer {
      * @return the attack the computer made on the human player
      */
     public Attack movePiece(Attack attack) {
-        speculationBoard.otherPlayerMove(attack.getMove().getP1(), attack.getMove().getP2(), attack.getAttackingPiece());
+        speculationBoard.otherPlayerMove(attack);
         Move m = strategy.chooseMove();
         return c.movePiece(m.getP1(), m.getP2());
     }

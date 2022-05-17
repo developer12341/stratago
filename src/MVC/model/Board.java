@@ -180,6 +180,7 @@ public class Board implements Cloneable {
         if (isFree(MoveLib.unpackRowFrom(move), MoveLib.unpackColFrom(move)))
             throw new IllegalArgumentException(MoveLib.getFrom(move) + " doesn't have a piece");
         if (Objects.equals(p1Color, p2Color)) {
+            System.out.println(this);
             System.out.println("same color: " + p1Color);
             throw new IllegalArgumentException("the piece you are trying to move has the same color...");
         }
@@ -219,8 +220,11 @@ public class Board implements Cloneable {
         String p2Color = getColor(p2);
         if (isFree(p1))
             throw new IllegalArgumentException(p1 + " doesn't have a piece");
-        if (p1Color.equals(p2Color))
+        if (p1Color.equals(p2Color)) {
+            System.out.println(Arrays.deepToString(getPieces(p1Color)));
+            System.out.println(Move.create(p1, p2));
             throw new IllegalArgumentException("the piece you are trying to move has the same color...");
+        }
         if (p2Color == null)
             p2Color = p1Color;
         Piece[][] player1Pieces = getPieces(p1Color);
@@ -324,6 +328,12 @@ public class Board implements Cloneable {
                 if (OppositePieces[newRow][col] != null)
                     break;
             }
+            for (int newRow = row + 1; isValid(newRow, col) &&
+                    PlayerPieces[newRow][col] == null; newRow++) {
+                amount++;
+                if (OppositePieces[newRow][col] != null)
+                    break;
+            }
             for (int newCol = col - 1; isValid(row, newCol) &&
                     PlayerPieces[row][newCol] == null; newCol--) {
                 amount++;
@@ -334,12 +344,6 @@ public class Board implements Cloneable {
                     PlayerPieces[row][newCol] == null; newCol++) {
                 amount++;
                 if (OppositePieces[row][newCol] != null)
-                    break;
-            }
-            for (int newRow = row + 1; isValid(newRow, col) &&
-                    PlayerPieces[newRow][col] == null; newRow++) {
-                amount++;
-                if (OppositePieces[newRow][col] != null)
                     break;
             }
         }
@@ -415,8 +419,12 @@ public class Board implements Cloneable {
      * @param pieces the pieces of the player
      * @return true if the piece is surrounded by the pieces in the variable pieces
      */
-    private boolean isSurrounded(Point p, Piece[][] pieces) {
-        int row = p.getRow(), col = p.getCol();
+    boolean isSurrounded(Point p, Piece[][] pieces) {
+        if(p == null || pieces == null)
+            throw new IllegalArgumentException("the point or pieces is null");
+        return  isSurrounded(p.getRow(), p.getCol(), pieces);
+    }
+    boolean isSurrounded(int row, int col, Piece[][] pieces) {
         if (isValid(row - 1, col) && pieces[row - 1][col] == null)
             return false;
         if (isValid(row + 1, col) && pieces[row + 1][col] == null)
@@ -481,6 +489,12 @@ public class Board implements Cloneable {
                             if (OppositePieces[newRow][col] != null)
                                 break;
                         }
+                        for (int newRow = row + 1; isValid(newRow, col) &&
+                                PlayerPieces[newRow][col] == null; newRow++) {
+                            moves[index++] = MoveLib.pack(row, col, newRow, col);
+                            if (OppositePieces[newRow][col] != null)
+                                break;
+                        }
                         for (int newCol = col - 1; isValid(row, newCol) &&
                                 PlayerPieces[row][newCol] == null; newCol--) {
                             moves[index++] = MoveLib.pack(row, col, row, newCol);
@@ -491,12 +505,6 @@ public class Board implements Cloneable {
                                 PlayerPieces[row][newCol] == null; newCol++) {
                             moves[index++] = MoveLib.pack(row, col, row, newCol);
                             if (OppositePieces[row][newCol] != null)
-                                break;
-                        }
-                        for (int newRow = row + 1; isValid(newRow, col) &&
-                                PlayerPieces[newRow][col] == null; newRow++) {
-                            moves[index++] = MoveLib.pack(row, col, newRow, col);
-                            if (OppositePieces[newRow][col] != null)
                                 break;
                         }
                     } else {
@@ -559,7 +567,7 @@ public class Board implements Cloneable {
         return getPieces(getColor(row, col))[row][col];
     }
 
-    private String getColor(int row, int col) {
+    String getColor(int row, int col) {
         if (!isValid(row, col))
             throw new IndexOutOfBoundsException("point (" + row + ", " + col + ") is out of bounds");
         if (redPieces[row][col] != null)
@@ -569,7 +577,7 @@ public class Board implements Cloneable {
         return null;
     }
 
-    private boolean isValid(Point p) {
+    boolean isValid(Point p) {
         return isValid(p.getRow(), p.getCol());
     }
 
@@ -604,6 +612,7 @@ public class Board implements Cloneable {
                 clone.redPieces = new Piece[Board.size][Board.size];
                 clone.redFlagInBoard = false;
             }
+            clone.playerTurn = playerTurn;
             return clone;
         } catch (CloneNotSupportedException e) {
             e.printStackTrace();

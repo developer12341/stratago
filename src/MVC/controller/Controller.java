@@ -1,9 +1,6 @@
 package MVC.controller;
 
-import MVC.model.Attack;
-import MVC.model.Board;
-import MVC.model.Piece;
-import MVC.model.Point;
+import MVC.model.*;
 import MVC.view.GameScene;
 import javafx.event.ActionEvent;
 
@@ -87,8 +84,11 @@ public class Controller {
     public Attack movePiece(Point p1, Point p2) {
         Piece attackingPiece = model.getPiece(p1);
         Piece defendingPiece = model.getPiece(p2);
+        if(defendingPiece != null) {
+            view.renderImage(defendingPiece, model.getColor(p2), p2.getRow(), p2.getCol());
+            view.renderImage(attackingPiece, model.getColor(p1), p1.getRow(), p1.getCol());
+        }
         Piece winner = model.moveTo(p1, p2);
-
         if (winner == null) {
             view.clearImage(p2);
             view.clearImage(p1);
@@ -179,8 +179,8 @@ public class Controller {
         return model.isGameOver();
     }
 
-    public void gameOver(String playerColor) {
-        view.gameOver(model.getWinner(), playerColor);
+    public void gameOver() {
+        view.gameOver(model.getWinner(), PlayerID.HumanPlayer);
     }
 
     /**
@@ -192,5 +192,9 @@ public class Controller {
         if (!Objects.equals(color, model.getColor(p)))
             return;
         view.renderImage(piece, color, p.getRow(), p.getCol());
+    }
+
+    public boolean isColor(Point p, String color) {
+        return Objects.equals(model.getColor(p), color);
     }
 }

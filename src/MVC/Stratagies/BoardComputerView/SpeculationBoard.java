@@ -1,9 +1,6 @@
 package MVC.Stratagies.BoardComputerView;
 
-import MVC.model.Attack;
-import MVC.model.Board;
-import MVC.model.Piece;
-import MVC.model.Point;
+import MVC.model.*;
 
 import java.util.Arrays;
 
@@ -14,14 +11,14 @@ import static MVC.model.Piece.FLAG;
  * this is the board from the prospective of the computer player.
  * each player can't know which piece is where, so it basically guesses.
  */
-public class SpeculationBoard {
+public class SpeculationBoard implements Cloneable {
     /**
      * this is the main board, though the computer never get access to the player's pieces
      */
-    private final Board mainBoard;
-    private final int[] invisiblePieceCount;
+    private Board mainBoard;
+    private int[] invisiblePieceCount;
     private final String color;
-    private final PossiblePiece[][] otherPieces;
+    private PossiblePiece[][] otherPieces;
 
 
     public SpeculationBoard(Board board, String color) {
@@ -82,30 +79,44 @@ public class SpeculationBoard {
 
     /**
      * when the player move the computer is getting more information
-     * @param p1 the point the player moved from
-     * @param p2 the point the player moved to
-     * @param attackingPiece the attacking piece.
      */
-    public void otherPlayerMove(Point p1, Point p2, Piece attackingPiece) {
-        if (otherPieces[p1.getRow()][p1.getCol()] == null) {
-            throw new IllegalArgumentException("there is no piece in " + p1);
+    public void otherPlayerMove(Attack attack) {
+        if (otherPieces[attack.getMove().getP1().getRow()][attack.getMove().getP1().getCol()] == null) {
+            throw new IllegalArgumentException("there is no piece in " + attack.getMove().getP1());
         }
-        otherPieces[p2.getRow()][p2.getCol()] = otherPieces[p1.getRow()][p1.getCol()];
-        otherPieces[p1.getRow()][p1.getCol()] = null;
-        if (mainBoard.isFree(p2) && color.equals(mainBoard.getColor(p2))) {
-            //the piece in p1 attacked and there was a tie or the computer won.
-            otherPieces[p2.getRow()][p2.getCol()] = null;
-            invisiblePieceCount[attackingPiece.PieceNumber - 1]--;
-        } else if (attackingPiece != null) {
-            //there was an attack, and now we know the piece.
-            invisiblePieceCount[attackingPiece.PieceNumber - 1]--;
-        } else {
-            //if the piece is a scout.
-            if (p1.distance(p2) > 1)
-                invisiblePieceCount[Piece.SCOUT.PieceNumber - 1]--;
-            else {
-                otherPieces[p2.getRow()][p2.getCol()].setProbability(Piece.BOMB, 0);
-                otherPieces[p2.getRow()][p2.getCol()].setProbability(FLAG, 0);
+        if(attack.getAttackingPiece() == null){
+            if(attack.getDefendingPiece() == null){
+                Point p1 = attack.getMove().getP1();
+                Point p2 = attack.getMove().getP2();
+                //the piece were a tie
+                otherPieces[p2.getRow()][p2.getCol()] = otherPieces[p1.getRow()][p1.getCol()];
+                otherPieces[p1.getRow()][p1.getCol()] = null;
+                //if the piece is a scout.
+                if (attack.getMove().getDistance() > 1){
+                    otherPieces[p2.getRow()][p2.getCol()].setPiece(Piece.SCOUT);
+                    invisiblePieceCount[Piece.SCOUT.PieceNumber - 1]--;
+                }
+                else {
+                    otherPieces[p2.getRow()][p2.getCol()].setProbability(Piece.BOMB, 0);
+                    otherPieces[p2.getRow()][p2.getCol()].setProbability(FLAG, 0);
+                }
+            }
+        } else if(attack.getAttackingPiece() != null){
+
+            Point p1 = attack.getMove().getP1();
+            Point p2 = attack.getMove().getP2();
+            if(mainBoard.isFree(p2)){
+                otherPieces[p1.getRow()][p1.getCol()] = null;
+                invisiblePieceCount[attack.getAttackingPiece().PieceNumber - 1]--;
+            } else if(mainBoard.getColor(p2) == color) {
+                //the computer piece won.
+                otherPieces[p1.getRow()][p1.getCol()] = null;
+                invisiblePieceCount[attack.getAttackingPiece().PieceNumber - 1]--;
+            } else{
+                //the player piece won.
+                otherPieces[p2.getRow()][p2.getCol()] = otherPieces[p1.getRow()][p1.getCol()];
+                otherPieces[p1.getRow()][p1.getCol()] = null;
+                invisiblePieceCount[attack.getAttackingPiece().PieceNumber - 1]--;
             }
         }
     }
@@ -270,4 +281,22 @@ public class SpeculationBoard {
         return newBoard;
     }
 
+    public Piece[][] getComputerPieces() {
+        return mainBoard.getPieces(PlayerID.ComputerPlayer);
+    }
+
+    @Override
+    public SpeculationBoard clone() {
+        try {
+            SpeculationBoard clone = (SpeculationBoard) super.clone();
+            clone.mainBoard = mainBoard.clone(PlayerID.ComputerPlayer);
+            clone.invisiblePieceCount = invisiblePieceCount.clone();
+            clone.otherPieces = otherPieces.clone();
+
+
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
+    }
 }

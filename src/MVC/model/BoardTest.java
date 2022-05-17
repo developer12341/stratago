@@ -3,7 +3,6 @@ package MVC.model;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static MVC.model.Piece.*;
@@ -14,10 +13,10 @@ class BoardTest {
 
     public static void main(String[] args) {
         int[][] board = {
-                {6,2,9,'B',4,4,2,2,4,4},
-                {8,10,2,8,'b',5,2,5,2,3},
-                {'b',3,1,7,6,'b',3,6,5,2},
-                {'F','b',7,3,7,6,'b',3,2,5}
+                {6, 2, 9, 'B', 4, 4, 2, 2, 4, 4},
+                {8, 10, 2, 8, 'b', 5, 2, 5, 2, 3},
+                {'b', 3, 1, 7, 6, 'b', 3, 6, 5, 2},
+                {'F', 'b', 7, 3, 7, 6, 'b', 3, 2, 5}
         };
         Piece[][] b2 = new Piece[4][10];
         //copy from board to b2
@@ -30,7 +29,8 @@ class BoardTest {
         //print b2
         printBoard(b2);
     }
-    private static void printBoard(Piece[][] b){
+
+    private static void printBoard(Piece[][] b) {
         System.out.print('{');
         for (Piece[] pieces : b) {
             System.out.print('{');
@@ -80,17 +80,105 @@ class BoardTest {
     void getPieces() {
     }
 
+    void testOptimizedFunctions(int D) {
+        compareMoves(b);
+        if (D == 0 || b.isGameOver()) {
+            return;
+        }
+        int[] moves = b.getOptimizedMoves(b.getPlayerTurn());
+        for (int move : moves) {
+            Piece p1 = b.getPiece(MoveLib.unpackRowFrom(move), MoveLib.unpackColFrom(move));
+            Piece p2 = b.getPiece(MoveLib.unpackRowTo(move), MoveLib.unpackColTo(move));
+            String PieceColor = b.getColor(MoveLib.unpackRowFrom(move), MoveLib.unpackColFrom(move));
+            b.OptimizedMoveTo(move);
+
+            testOptimizedFunctions(D - 1);
+            b.OptimizedUndoMove(move, p1, p2, PieceColor);
+        }
+    }
+
     @Test
-    void testOptimizedFunctions() {
-        setUpKnownBoard();
+    void testOptimizedFunctions2() {
+        testOptimizedFunctions(5);
+    }
+
+    @Test
+    void testGetAmountOfMoves() {
+        for (int row = 0; row < Board.size; row++) {
+            for (int col = 0; col < Board.size; col++) {
+                if (!b.isValid(row, col)) {
+                    continue;
+                }
+                if (b.getPiece(row, col) != null) {
+                    if (b.getMoves(Point.create(row, col)) != null) {
+                        assertEquals(b.getAmountOfMoves(row, col), b.getMoves(Point.create(row, col)).size());
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    void testGetAmountOfMoves2() {
+        while (!b.isGameOver()) {
+            //select a random move
+            List<Move> moves = b.getMoves(b.getPlayerTurn());
+            Move move = moves.get((int) (Math.random() * moves.size()));
+            b.moveTo(move.getP1(), move.getP2());
+            testGetAmountOfMoves();
+        }
+        System.out.println("success");
+    }
+
+
+    @Test
+    void testGetMoves() {
+        Board d = new Board();
+        d.setPieces("red", new Piece[][]{
+                {null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, FLAG, null},
+                {null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null}});
+
+        d.setPieces("blue", new Piece[][]{
+                {null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, SCOUT, null},
+                {null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null},
+                {null, null, SERGEANT, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null},
+                {CAPTAIN, null, MINER, SCOUT, null, BOMB, null, BOMB, BOMB, FLAG}});
+        System.out.println(d);
+        List<Point> moves = d.getMoves(Point.create(1, 8));
+        System.out.println(moves);
+
+    }
+
+
+    private void compareMoves(Board b) {
         List<Move> moves = b.getMoves("red");
         int[] optimizedMoves = b.getOptimizedMoves("red");
-        System.out.println(Arrays.toString(optimizedMoves));
+        assertEquals(moves.size(), optimizedMoves.length);
+        for (int optimizedMove : optimizedMoves) {
+            assertTrue(moves.contains(MoveLib.convertToMove(optimizedMove)));
+        }
+
+        moves = b.getMoves("blue");
+        optimizedMoves = b.getOptimizedMoves("blue");
+        assertEquals(moves.size(), optimizedMoves.length);
         for (int optimizedMove : optimizedMoves) {
             assertTrue(moves.contains(MoveLib.convertToMove(optimizedMove)));
         }
     }
-
 
 
     @Test
@@ -107,43 +195,49 @@ class BoardTest {
     void getMoves() {
         setUpKnownBoard();
         System.out.println(b);
-        assertEquals(3, b.getMoves(Point.create(6,0)).size());
+        assertEquals(3, b.getMoves(Point.create(6, 0)).size());
         assertEquals(b.getMoves("red").size(), b.amountOfMoves("red"));
         System.out.println(b.getMoves("blue"));
         System.out.println(b.getMoves("blue").size());
         assertEquals(b.getMoves("blue").size(), b.amountOfMoves("blue"));
 
 
-
     }
 
     @Test
     void amountOfMoves() {
-//        b.setPieces("red", new Piece[][]{
-//                SERGEANT(4) SCOUT(2) MINER(3) BOMB(11) SERGEANT(4) MINER(3) MINER(3) BOMB(11) FLAG(12) BOMB(
-//                BOMB(11) CAPTAIN(6) SPY(1) MAJOR(7) LIEUTENANT(5) SCOUT(2) CAPTAIN(6) LIEUTENANT(5) BOMB(11) SERGEANT(
-//                MINER(3) SCOUT(2) COLONEL(8) MAJOR(7) BOMB(11) LIEUTENANT(5) MARSHAL(10) MAJOR(7) LIEUTENANT(5) COLONEL(
-//                GENERAL(9) CAPTAIN(6) SCOUT(2) SERGEANT(4) SCOUT(2) SCOUT(2) SCOUT(2) MINER(3) SERGEANT(4) null
-//                null null null null null null null null null null
-//                null null null null null null null null null null
-//                SCOUT(2) MINER(3) LIEUTENANT(5) MAJOR(7) BOMB(11) CAPTAIN(6) MINER(3) MARSHAL(10) MAJOR(7) SCOUT(
-//                GENERAL(9) SCOUT(2) MAJOR(7) COLONEL(8) BOMB(11) COLONEL(8) LIEUTENANT(5) CAPTAIN(6) null SERGEANT(
-//                SCOUT(2) SCOUT(2) MINER(3) SPY(1) null MINER(3) CAPTAIN(6) LIEUTENANT(5) LIEUTENANT(5) BOMB(
-//                CAPTAIN(6) SERGEANT(4) MINER(3) SCOUT(2) SCOUT(2) BOMB(11) null BOMB(11) BOMB(11) FLAG(
-//
+        b.setPieces("red", new Piece[][]{
+                {SERGEANT, SCOUT, MINER, BOMB, SERGEANT, MINER, MINER, BOMB, FLAG, BOMB},
+                {BOMB, CAPTAIN, SPY, MAJOR, LIEUTENANT, SCOUT, CAPTAIN, LIEUTENANT, BOMB, SERGEANT},
+                {MINER, SCOUT, COLONEL, MAJOR, BOMB, LIEUTENANT, MARSHAL, MAJOR, LIEUTENANT, COLONEL},
+                {GENERAL, CAPTAIN, SCOUT, SERGEANT, SCOUT, SCOUT, SCOUT, MINER, SERGEANT, null},
+                {null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null}});
+
+        b.setPieces("blue", new Piece[][]{
+                {null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null},
+                {SCOUT, MINER, LIEUTENANT, MAJOR, BOMB, CAPTAIN, MINER, MARSHAL, MAJOR, SCOUT},
+                {GENERAL, SCOUT, MAJOR, COLONEL, BOMB, COLONEL, LIEUTENANT, CAPTAIN, null, SERGEANT},
+                {SCOUT, SCOUT, MINER, SPY, null, MINER, CAPTAIN, LIEUTENANT, LIEUTENANT, BOMB},
+                {CAPTAIN, SERGEANT, MINER, SCOUT, SCOUT, BOMB, null, BOMB, BOMB, FLAG}});
+
+
+        System.out.println(b.getMoves("red"));
+        System.out.println(b.getMoves("blue"));
+
+        compareMoves(b);
+
     }
 
-
-
-    @Test
-    void testGetMoves() {
-        assertNotNull(b.getMoves("red"));
-        System.out.println(b.getMoves("red"));
-
-        setUpKnownBoard();
-        b.moveTo(Point.create(3,1),Point.create(4,1));
-        System.out.println(b.getMoves("red"));
-    }
 
     private void setUpKnownBoard() {
         b.setPieces("blue", new Piece[][]{
@@ -189,17 +283,29 @@ class BoardTest {
     }
 
     @Test
+    void testIsSurrounded() {
+        assertTrue(b.isSurrounded(Point.create(0, 0), b.getPieces("blue")));
+        assertFalse(b.isSurrounded(Point.create(3, 1), b.getPieces("blue")));
+    }
+
+
+    @Test
     void testClone() {
         Board b1 = b.clone("red");
         assertNotNull(b1);
-        b.setPiece(5, 5, Piece.PLACEHOLDER, "red");
-        assertNull(b1.getPiece(Point.create(5, 5)));
-        System.out.println(Arrays.deepToString(b1.getPieces("red")));
-        System.out.println(Arrays.deepToString(b1.getPieces("blue")));
+        b1.setPiece(2, 2, null, "red");
+        assertNull(b1.getPiece(2, 2));
+        assertNotNull(b.getPiece(2, 2));
 
-        System.out.println();
-        System.out.println(b1.getMoves("blue"));
-        System.out.println(b1.getMoves("red"));
+        b1.setPiece(2, 2, PLACEHOLDER, "blue");
+        assertEquals(PLACEHOLDER, b1.getPiece(2, 2));
+        assertNotEquals(PLACEHOLDER, b.getPiece(2, 2));
+        assertNotEquals(b.getPieces("red"), b1.getPieces("red"));
+        assertNotEquals(b.getPieces("blue"), b1.getPieces("blue"));
+        System.out.println(b1);
+        b1.moveTo(Point.create(6, 4), Point.create(5, 4));
+        assertNull(b1.getPiece(6, 4));
+        assertNotEquals(b1.getPlayerTurn(), b.getPlayerTurn());
     }
 
     @Test
@@ -220,7 +326,7 @@ class BoardTest {
 //        System.out.println(b.getMoves("blue"));
 
         setUpKnownBoard();
-        b.moveTo(Point.create(3,2),Point.create(4,2));
+        b.moveTo(Point.create(3, 2), Point.create(4, 2));
         System.out.println(b);
         System.out.println(b.getMoves("red"));
         System.out.println(b.getMoves("blue"));
@@ -228,13 +334,43 @@ class BoardTest {
     }
 
     @Test
-    void testAmountOfMoves() {
-        setUpKnownBoard();
-        System.out.println(b.getMoves("red"));
+    void testAmountOfMoves(Board b) {
+        for (int row = 0; row < Board.size; row++) {
+            for (int col = 0; col < Board.size; col++) {
+                if (!b.isValid(Point.create(row, col))) {
+                    continue;
+                }
+                if (b.getPiece(row, col) != null) {
+                    if (b.doesHaveMoves(Point.create(row, col))) {
+                        assertEquals(b.getMoves(Point.create(row, col)).size(), b.getAmountOfMoves(row, col));
+                    }
+                }
+            }
+        }
         assertEquals(b.getMoves("red").size(), b.amountOfMoves("red"));
         assertEquals(b.getMoves("blue").size(), b.amountOfMoves("blue"));
     }
 
+    void simulateGame(Board b, int Depth) {
+        testAmountOfMoves(b);
+        if (b.isGameOver() || Depth == 0) {
+            return;
+        }
+        List<Move> moves = b.getMoves(b.getPlayerTurn());
+        for (Move move : moves) {
+            Piece p1 = b.getPiece(move.getP1());
+            Piece p2 = b.getPiece(move.getP2());
+            b.moveTo(move.getP1(), move.getP2());
+            simulateGame(b, Depth - 1);
+            b.undoMove(move, p1, p2, Board.getOppositeColor(b.getPlayerTurn()));
+        }
+
+    }
+
+    @Test
+    void testAmountOfMovesInGame() {
+        simulateGame(b, 5);
+    }
 
 
     @Test
@@ -267,10 +403,6 @@ class BoardTest {
 
     @Test
     void isValid() {
-    }
-
-    @Test
-    void testClone1() {
     }
 
     @Test
